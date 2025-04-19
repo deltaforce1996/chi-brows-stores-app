@@ -1,8 +1,10 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseFilters } from '@nestjs/common';
 import { EmployeeBase } from 'src/types/employee.interface';
 import { AuthService } from './auth.service';
+import { AuthorizedExceptFilter } from 'src/errors/filter.error';
 
 @Controller('auth')
+@UseFilters(new AuthorizedExceptFilter())
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Post('login')

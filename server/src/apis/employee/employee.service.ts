@@ -5,6 +5,7 @@ import { EmployeeBase } from 'src/types/employee.interface';
 import { ILike, Repository } from 'typeorm';
 import { CreateEmployeeDto } from './dtos/employee.dto';
 import * as bcrypt from 'bcrypt';
+import { ResultNotFoundExcept } from 'src/errors/exception.error';
 
 @Injectable()
 export class EmployeeService {
@@ -36,19 +37,29 @@ export class EmployeeService {
     return saved as EmployeeBase;
   }
 
-  async getById(id: string): Promise<EmployeeEntity> {
+  async getById(id: string): Promise<EmployeeBase> {
     const emp = await this.employeeRepo.findOneBy({ id });
-    return emp as EmployeeEntity;
+    if (!emp) throw new ResultNotFoundExcept('Employee not found.');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...rest } = emp as EmployeeBase;
+    return rest;
   }
 
-  async searchUser(query: string): Promise<EmployeeEntity[]> {
-    return await this.employeeRepo.find({
+  async searchUser(query: string): Promise<EmployeeBase[]> {
+    const result = await this.employeeRepo.find({
       where: [
         { username: ILike(`%${query}%`) },
         { email: ILike(`%${query}%`) },
         { fullname: ILike(`%${query}%`) },
       ],
     });
+    if (result && result.length === 0)
+      throw new ResultNotFoundExcept('Employee not found.');
+    const emps: EmployeeBase[] = result.map(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      ({ password, ...rest }) => rest as EmployeeBase,
+    );
+    return emps;
   }
 
   async login(
