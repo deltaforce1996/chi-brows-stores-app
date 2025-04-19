@@ -1,5 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { config } from 'dotenv';
+import { CustEntity } from 'src/db/entities/cust.entity';
 import { EmployeeEntity } from 'src/db/entities/emp.entity';
 // import { join } from 'path';
 
@@ -13,6 +14,6 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   password: process.env.DB_PASS || '',
   database: process.env.DB_NAME || 'yourdb',
   // entities: [join(__dirname, '..', 'db', '**', '*.entity.{ts,js}')],
-  entities: [EmployeeEntity],
+  entities: [EmployeeEntity, CustEntity],
   synchronize: true, // ❗ dev only
 };
