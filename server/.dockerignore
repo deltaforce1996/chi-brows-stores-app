@@ -6,5 +6,5 @@ dist
 Dockerfile
 docker-compose.yml
 *.log
-<!-- .env -->
+.env
 # Add any other files/folders you don't need in the image
