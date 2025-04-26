@@ -1,0 +1,235 @@
+// src/order/order.service.ts
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CustEntity } from 'src/db/entities/cust.entity';
+import { EmployeeEntity } from 'src/db/entities/emp.entity';
+import { OrderItemEntity } from 'src/db/entities/order-item.entity';
+import { OrderEntity } from 'src/db/entities/order.entity';
+import { ProductEntity } from 'src/db/entities/product.entity';
+import { OrderStatus } from 'src/utils/order-status.enum';
+import { Repository, DataSource } from 'typeorm';
+
+import { CreateOrderDto, UpdateOrderStatusDto } from './dto/order.dto';
+import {
+  BadRequestExcept,
+  InternalServerErrorExcept,
+  ResultNotFoundExcept,
+} from 'src/errors/exception.error';
+
+@Injectable()
+export class OrderService {
+  constructor(
+    @InjectRepository(OrderEntity)
+    private readonly orderRepository: Repository<OrderEntity>,
+    private readonly dataSource: DataSource, // Inject DataSource for transactions
+  ) {}
+
+  async create(createOrderDto: CreateOrderDto): Promise<OrderEntity> {
+    const { customerId, employeeId, items, notes } = createOrderDto;
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const customer = await queryRunner.manager.findOneBy(CustEntity, {
+        id: customerId,
+      });
+      if (!customer) throw new ResultNotFoundExcept('Customer with ID');
+
+      let employee: EmployeeEntity | null = null;
+      if (employeeId) {
+        employee = await queryRunner.manager.findOneBy(EmployeeEntity, {
+          id: employeeId,
+        });
+        if (!employee) {
+          throw new ResultNotFoundExcept(
+            `Employee with ID "${employeeId}" not found`,
+          );
+        }
+      }
+
+      let totalAmount = 0;
+      const orderItems: OrderItemEntity[] = [];
+
+      for (const itemDto of items) {
+        const product = await queryRunner.manager.findOneBy(ProductEntity, {
+          id: itemDto.productId,
+        });
+        if (!product) {
+          throw new ResultNotFoundExcept(
+            `Product with ID "${itemDto.productId}" not found`,
+          );
+        }
+
+        const pricePerUnit = product.price;
+        const itemTotalPrice = pricePerUnit * itemDto.quantity;
+        totalAmount += itemTotalPrice;
+
+        const orderItem = new OrderItemEntity();
+        orderItem.product_id = product.id;
+        orderItem.product = product;
+        orderItem.quantity = itemDto.quantity;
+        orderItem.price_per_unit = pricePerUnit;
+        orderItem.total_price = itemTotalPrice;
+
+        orderItems.push(orderItem);
+      }
+
+      if (orderItems.length === 0) {
+        throw new BadRequestExcept('Order must contain at least one item');
+      }
+
+      // Generate Order ID like ORD-00001
+      const lastOrder = await queryRunner.manager.findOne(OrderEntity, {
+        where: {},
+        order: { id: 'DESC' },
+      });
+
+      let newOrderNumber = 1;
+      if (lastOrder) {
+        const lastIdNumber = parseInt(lastOrder.id.replace('ORD-', ''), 10);
+        if (!isNaN(lastIdNumber)) {
+          newOrderNumber = lastIdNumber + 1;
+        }
+      }
+
+      const generatedOrderId = `ORD-${newOrderNumber.toString().padStart(5, '0')}`;
+
+      const order = new OrderEntity();
+      order.id = generatedOrderId;
+      order.customer_id = customer.id;
+      order.customer = customer;
+      if (employee) {
+        order.employee_id = employee.id;
+        order.employee = employee;
+      }
+      order.status = OrderStatus.PENDING;
+      order.total_amount = totalAmount;
+      order.notes = notes;
+      order.items = orderItems;
+
+      const savedOrder = await queryRunner.manager.save(OrderEntity, order);
+
+      await queryRunner.commitTransaction();
+      return this.findOne(savedOrder.id);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      if (
+        error instanceof ResultNotFoundExcept ||
+        error instanceof BadRequestExcept
+      ) {
+        throw error;
+      }
+      console.error('Error creating order:', error);
+      throw new InternalServerErrorExcept('Failed to create order');
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async findAll(
+    page = 1,
+    pageSize = 10,
+  ): Promise<{ data: OrderEntity[]; total: number }> {
+    const [data, total] = await this.orderRepository.findAndCount({
+      relations: ['customer', 'employee', 'items', 'items.product'],
+      order: { created_at: 'DESC' },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+
+    return { data, total };
+  }
+
+  async findOne(id: string): Promise<OrderEntity> {
+    const order = await this.orderRepository.findOne({
+      where: { id },
+      relations: ['customer', 'employee', 'items', 'items.product'], // Eager load relations
+    });
+    if (!order) {
+      throw new ResultNotFoundExcept(`Order with ID "${id}" not found`);
+    }
+    return order;
+  }
+
+  async updateStatus(
+    id: string,
+    updateOrderStatusDto: UpdateOrderStatusDto,
+  ): Promise<OrderEntity> {
+    const order = await this.findOne(id); // Reuse findOne to check existence
+
+    order.status = updateOrderStatusDto.status;
+    order.updated_at = new Date(); // Manually update if not auto-updating
+
+    await this.orderRepository.save(order);
+    return this.findOne(id); // Return updated order with relations
+  }
+
+  async remove(id: string): Promise<void> {
+    const result = await this.orderRepository.delete(id); // Cascade delete should handle items
+    if (result.affected === 0)
+      throw new ResultNotFoundExcept(`Order with ID "${id}" not found`);
+  }
+
+  async searchOrders(
+    filters: {
+      orderId?: string;
+      customerId?: string;
+      customerName?: string; // fullname หรือ nickname
+      employeeId?: string;
+      status?: OrderStatus;
+    },
+    page = 1,
+    pageSize = 10,
+  ): Promise<{ data: OrderEntity[]; total: number }> {
+    const queryBuilder = this.dataSource
+      .getRepository(OrderEntity)
+      .createQueryBuilder('order');
+
+    queryBuilder
+      .leftJoinAndSelect('order.customer', 'customer')
+      .leftJoinAndSelect('order.employee', 'employee')
+      .leftJoinAndSelect('order.items', 'items');
+
+    if (filters.orderId) {
+      queryBuilder.andWhere('order.id LIKE :orderId', {
+        orderId: `%${filters.orderId}%`,
+      });
+    }
+
+    if (filters.customerId) {
+      queryBuilder.andWhere('order.customer_id LIKE :customerId', {
+        customerId: `%${filters.customerId}%`,
+      });
+    }
+
+    if (filters.customerName) {
+      queryBuilder.andWhere(
+        '(customer.fullname LIKE :customerName OR customer.nickname LIKE :customerName)',
+        { customerName: `%${filters.customerName}%` },
+      );
+    }
+
+    if (filters.employeeId) {
+      queryBuilder.andWhere('order.employee_id LIKE :employeeId', {
+        employeeId: `%${filters.employeeId}%`,
+      });
+    }
+
+    if (filters.status) {
+      queryBuilder.andWhere('order.status = :status', {
+        status: filters.status,
+      });
+    }
+
+    queryBuilder
+      .orderBy('order.created_at', 'DESC')
+      .skip((page - 1) * pageSize)
+      .take(pageSize);
+
+    const [data, total] = await queryBuilder.getManyAndCount();
+
+    return { data, total };
+  }
+}

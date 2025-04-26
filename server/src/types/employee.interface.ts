@@ -8,3 +8,15 @@ export interface EmployeeBase {
   email: string;
   created_at: Date;
 }
+
+interface Pagination {
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+export interface EmployeeSearchResponse {
+  items: EmployeeBase[];
+  pagination: Pagination;
+}

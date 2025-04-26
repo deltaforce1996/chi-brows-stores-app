@@ -6,7 +6,7 @@ import {
   Post,
   Query,
   UseFilters,
-  UseGuards,
+  // UseGuards,
 } from '@nestjs/common';
 import {
   AuthorizedExceptFilter,
@@ -18,8 +18,8 @@ import {
 import { CustomerService } from './customer.service';
 import { CreatCustomerDto } from './dtos/customer.dto';
 import { Successfully } from 'src/res/successfully';
-import { CustBase } from 'src/types/cust.interface';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CustBase, CustomerListResponse } from 'src/types/cust.interface';
+// import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('customer')
 @UseFilters(
@@ -38,14 +38,33 @@ export class CustomerController {
     return new Successfully<CustBase>('Register successfully.', result);
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get('search')
-  async search(@Query('q') q: string) {
-    const results = await this.custService.searchUser(q);
-    return new Successfully<CustBase[]>('Search successfully.', results);
+  async searchCustomer(
+    @Query('query') query: string,
+    @Query('page') page = 1,
+    @Query('pageSize') pageSize = 10,
+  ): Promise<Successfully<CustomerListResponse>> {
+    const { data, total } = await this.custService.searchUser(
+      query,
+      Number(page),
+      Number(pageSize),
+    );
+
+    const totalPages = Math.ceil(total / Number(pageSize));
+
+    return new Successfully<CustomerListResponse>('Search successfully.', {
+      items: data,
+      pagination: {
+        page: Number(page),
+        pageSize: Number(pageSize),
+        totalItems: total,
+        totalPages: totalPages,
+      },
+    });
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get('find/:id')
   async getById(@Param('id') id: string) {
     const result = await this.custService.getById(id);

@@ -2,6 +2,8 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { config } from 'dotenv';
 import { CustEntity } from 'src/db/entities/cust.entity';
 import { EmployeeEntity } from 'src/db/entities/emp.entity';
+import { OrderItemEntity } from 'src/db/entities/order-item.entity';
+import { OrderEntity } from 'src/db/entities/order.entity';
 import { ProductEntity } from 'src/db/entities/product.entity';
 // import { join } from 'path';
 
@@ -15,7 +17,13 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   password: process.env.DB_PASS || '', // Use env variable or default (consider security)
   database: process.env.DB_NAME || 'yourdb', // Use env variable or default
   // entities: [join(__dirname, '..', 'db', '**', '*.entity.{ts,js}')], // Alternative way to load entities
-  entities: [EmployeeEntity, CustEntity, ProductEntity], // Explicitly list entities
+  entities: [
+    EmployeeEntity,
+    CustEntity,
+    ProductEntity,
+    OrderEntity,
+    OrderItemEntity,
+  ], // Explicitly list entities
   synchronize: true, // ❗ IMPORTANT: Set to false in production and use migrations!
 };
 

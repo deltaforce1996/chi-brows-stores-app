@@ -6,11 +6,11 @@ import {
   Post,
   Query,
   UseFilters,
-  UseGuards,
+  // UseGuards,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dtos/employee.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+// import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import {
   AuthorizedExceptFilter,
@@ -20,7 +20,10 @@ import {
   ResultNotFoundExceptFilter,
 } from 'src/errors/filter.error';
 import { Successfully } from 'src/res/successfully';
-import { EmployeeBase } from 'src/types/employee.interface';
+import {
+  EmployeeBase,
+  EmployeeSearchResponse,
+} from 'src/types/employee.interface';
 
 @Controller('employees')
 @UseFilters(
@@ -39,21 +42,40 @@ export class EmployeeController {
     return new Successfully<EmployeeBase>('Register successfully.', result);
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get('search')
-  async search(@Query('q') q: string) {
-    const results = await this.employeeService.searchUser(q);
-    return new Successfully<EmployeeBase[]>('Search successfully.', results);
+  async search(
+    @Query('q') q: string,
+    @Query('page') page = 1,
+    @Query('pageSize') pageSize = 10,
+  ) {
+    const { data, total } = await this.employeeService.searchUser(
+      q,
+      Number(page),
+      Number(pageSize),
+    );
+
+    const totalPages = Math.ceil(total / Number(pageSize));
+
+    return new Successfully<EmployeeSearchResponse>('Search successfully.', {
+      items: data,
+      pagination: {
+        page: Number(page),
+        pageSize: Number(pageSize),
+        totalItems: total,
+        totalPages: totalPages,
+      },
+    });
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get('find/:id')
   async getById(@Param('id') id: string) {
     const result = await this.employeeService.getById(id);
     return new Successfully<EmployeeBase>('Get successfully.', result);
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get('me')
   async getMe(@CurrentUser() user: any) {
     const result = await this.employeeService.getById(user.id);

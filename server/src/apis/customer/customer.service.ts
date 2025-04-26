@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { CustEntity } from 'src/db/entities/cust.entity';
-import { ILike, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreatCustomerDto } from './dtos/customer.dto';
 import { CustBase } from 'src/types/cust.interface';
 import {
@@ -58,16 +58,31 @@ export class CustomerService {
     return cust;
   }
 
-  async searchUser(query: string): Promise<CustBase[]> {
-    const result = await this.custRepo.find({
-      where: [
-        { nickname: ILike(`%${query}%`) },
-        { fullname: ILike(`%${query}%`) },
-      ],
-    });
-    if (result && result.length === 0)
+  async searchUser(
+    query: string,
+    page = 1,
+    pageSize = 10,
+  ): Promise<{ data: CustBase[]; total: number }> {
+    const queryBuilder = this.custRepo.createQueryBuilder('cust');
+
+    if (query) {
+      queryBuilder
+        .where('cust.nickname ILIKE :search', { search: `%${query}%` })
+        .orWhere('cust.fullname ILIKE :search', { search: `%${query}%` });
+    }
+
+    queryBuilder
+      .orderBy('cust.created_at', 'DESC')
+      .skip((page - 1) * pageSize)
+      .take(pageSize);
+
+    const [data, total] = await queryBuilder.getManyAndCount();
+
+    if (data.length === 0) {
       throw new ResultNotFoundExcept('Cust not found.');
-    return result;
+    }
+
+    return { data, total };
   }
 
   private generateNextId(lastId?: string): string {

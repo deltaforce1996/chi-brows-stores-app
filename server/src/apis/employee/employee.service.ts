@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmployeeEntity } from 'src/db/entities/emp.entity';
 import { EmployeeBase } from 'src/types/employee.interface';
-import { ILike, Repository } from 'typeorm';
 import { CreateEmployeeDto } from './dtos/employee.dto';
 import * as bcrypt from 'bcrypt';
 import { ResultNotFoundExcept } from 'src/errors/exception.error';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class EmployeeService {
@@ -45,21 +45,33 @@ export class EmployeeService {
     return rest;
   }
 
-  async searchUser(query: string): Promise<EmployeeBase[]> {
-    const result = await this.employeeRepo.find({
-      where: [
-        { username: ILike(`%${query}%`) },
-        { email: ILike(`%${query}%`) },
-        { fullname: ILike(`%${query}%`) },
-      ],
-    });
-    if (result && result.length === 0)
-      throw new ResultNotFoundExcept('Employee not found.');
+  async searchUser(
+    query: string,
+    page = 1,
+    pageSize = 10,
+  ): Promise<{ data: EmployeeBase[]; total: number }> {
+    const queryBuilder = this.employeeRepo.createQueryBuilder('emp');
+
+    if (query) {
+      queryBuilder
+        .where('emp.username LIKE :search', { search: `%${query}%` })
+        .orWhere('emp.email LIKE :search', { search: `%${query}%` })
+        .orWhere('emp.fullname LIKE :search', { search: `%${query}%` });
+    }
+
+    queryBuilder
+      .orderBy('emp.created_at', 'DESC')
+      .skip((page - 1) * pageSize)
+      .take(pageSize);
+
+    const [result, total] = await queryBuilder.getManyAndCount();
+
     const emps: EmployeeBase[] = result.map(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       ({ password, ...rest }) => rest as EmployeeBase,
     );
-    return emps;
+
+    return { data: emps, total };
   }
 
   async login(

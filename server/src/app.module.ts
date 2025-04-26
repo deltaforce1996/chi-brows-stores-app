@@ -8,11 +8,12 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './apis/auth/auth.module';
 import { CustomerModule } from './apis/customer/customer.module';
 import { ProductModule } from './apis/product/product.module';
+import { OrderModule } from './apis/order/order.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // ✅ ไม่ต้อง import ซ้ำในโมดูลอื่น
+      isGlobal: true,
       envFilePath: '.env',
     }),
     TypeOrmModule.forRoot(typeOrmConfig),
@@ -20,6 +21,7 @@ import { ProductModule } from './apis/product/product.module';
     CustomerModule,
     ProductModule,
     AuthModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [AppService],

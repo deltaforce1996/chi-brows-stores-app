@@ -9,3 +9,15 @@ export interface CustBase {
   birthday: Date;
   created_at: Date;
 }
+
+interface Pagination {
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+export interface CustomerListResponse {
+  items: CustBase[];
+  pagination: Pagination;
+}
