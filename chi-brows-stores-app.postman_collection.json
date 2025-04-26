@@ -113,7 +113,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{BASE_URL}}/customer/search?q=john",
+							"raw": "{{BASE_URL}}/customer/search?q=Al",
 							"host": [
 								"{{BASE_URL}}"
 							],
@@ -124,7 +124,7 @@
 							"query": [
 								{
 									"key": "q",
-									"value": "john"
+									"value": "Al"
 								}
 							]
 						}
@@ -241,6 +241,116 @@
 							}
 						},
 						"url": "{{BASE_URL}}/product/register"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "order",
+			"item": [
+				{
+					"name": "create-new-orders",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"customerId\": \"CUST0001\",\r\n    \"employeeId\": \"EMP0001\",\r\n    \"items\": [\r\n        {\r\n            \"productId\": \"P0001\",\r\n            \"quantity\": 3\r\n        },\r\n        {\r\n            \"productId\": \"P0002\",\r\n            \"quantity\": 1\r\n        }\r\n    ],\r\n    \"notes\": \"Please deliver between 9 AM - 12 PM.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/orders/register"
+					},
+					"response": []
+				},
+				{
+					"name": "update-status-order-by-id",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"cancelled\"   //pending, processing, shipped, delivered, completed, cancelled\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/orders/update/ORD-00001/status"
+					},
+					"response": []
+				},
+				{
+					"name": "create-new-orders-find",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/orders/list?page=1&pageSize=10",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"orders",
+								"list"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-new-orders-find-by-id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{BASE_URL}}/orders/find/ORD-00001"
+					},
+					"response": []
+				},
+				{
+					"name": "create-new-orders-find-search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/orders/search?customerName=Alif&page=1&pageSize=10",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"orders",
+								"search"
+							],
+							"query": [
+								{
+									"key": "customerName",
+									"value": "Alif"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "10"
+								}
+							]
+						}
 					},
 					"response": []
 				}

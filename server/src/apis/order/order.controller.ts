@@ -4,12 +4,12 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   HttpCode,
   HttpStatus,
   Query,
+  Put,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto/order.dto';
@@ -56,7 +56,7 @@ export class OrderController {
     return new Successfully<any>('Get successfully.', result);
   }
 
-  @Patch('update/:id/status')
+  @Put('update/:id/status')
   async updateStatus(
     @Param('id') id: string,
     @Body() updateOrderStatusDto: UpdateOrderStatusDto,
