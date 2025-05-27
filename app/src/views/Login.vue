@@ -66,7 +66,6 @@
 <script setup>
 import { ref } from "vue";
 
-import { login } from "../services/authService";
 const username = ref("");
 const password = ref("");
 const rememberMe = ref(false);
@@ -75,17 +74,6 @@ function handleLogin() {
   alert(
     `Username: ${username.value}\nPassword: ${password.value}\nRemember Me: ${rememberMe.value}`
   );
-}
-
-
-async function handleLogin() {
-  try {
-    const user = await login();
-    console.log("Welcome", user);
-    router.push("/");
-  } catch (err) {
-    alert("Login failed");
-  }
 }
 </script>
 
