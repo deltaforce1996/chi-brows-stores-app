@@ -1,98 +1,310 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 📦 Backend API Overview (NestJS)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API นี้จัดทำโดยใช้ NestJS พร้อมรองรับ JWT Authentication, Routing, DTO Validation และ Exception Handling ครบถ้วน
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## 🔐 Authentication
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### POST `/auth/login`
 
-## Project setup
+**Payload:**
 
-```bash
-$ npm install
+```json
+{
+  "username": "admin",
+  "password": "123456"
+}
 ```
 
-## Compile and run the project
+**Response:**
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```json
+{
+  "access_token": "JWT_TOKEN",
+  "user": {
+    "id": "EMP0001",
+    "username": "admin",
+    "fullname": "System Admin",
+    ...
+  }
+}
 ```
 
-## Run tests
+**Status Code:** `200 OK`
 
-```bash
-# unit tests
-$ npm run test
+---
 
-# e2e tests
-$ npm run test:e2e
+## 👤 Customer
 
-# test coverage
-$ npm run test:cov
+### POST `/customer/register`
+
+**Payload:**
+
+```json
+{
+  "fullname": "สมชาย ใจดี",
+  "nickname": "ชาย",
+  "facebook": "fb123",
+  "line": "line123",
+  "tel": "0812345678",
+  "address": "กรุงเทพ",
+  "birthday": "1990-01-01"
+}
 ```
 
-## Deployment
+**Response:** ข้อมูลลูกค้าที่ถูกบันทึก  
+**Status Code:** `201 Created`
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+---
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### GET `/customer/find/:id`
 
-```bash
-$ npm install -g mau
-$ mau deploy
+**Response:**
+
+```json
+{
+  "id": "CUST0001",
+  "fullname": "...",
+  ...
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+**Status Code:** `200 OK`
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+### GET `/customer/search?query=ชาย&page=1&pageSize=10`
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+**Response:** รายการลูกค้า + pagination  
+**Status Code:** `200 OK`
 
-## Support
+---
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## 👨‍💼 Employee
 
-## Stay in touch
+### POST `/employees/register`
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+เหมือนกับ customer แต่มี `username`, `email`, `password`
 
-## License
+**Status Code:** `201 Created`
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+### GET `/employees/find/:id`
+
+**Status Code:** `200 OK`
+
+### GET `/employees/search?q=admin`
+
+**Status Code:** `200 OK`
+
+---
+
+## 📦 Product
+
+### POST `/product/register`
+
+**Payload:**
+
+```json
+{
+  "name": "ครีมบำรุง",
+  "price": 150,
+  "description": "ช่วยให้ผิวนุ่ม",
+  "image": "url.jpg"
+}
+```
+
+**Status Code:** `201 Created`
+
+---
+
+### GET `/product/search?q=ครีม`
+
+### GET `/product/find/:id`
+
+**Status Code:** `200 OK`
+
+---
+
+## 🧾 Orders
+
+### POST `/orders/register`
+
+**Payload:**
+
+```json
+{
+  "customerId": "CUST0001",
+  "employeeId": "EMP0001",
+  "items": [{ "productId": "P0001", "quantity": 2 }],
+  "notes": "ด่วน"
+}
+```
+
+**Status Code:** `201 Created`
+
+---
+
+### PUT `/orders/update/:id/status`
+
+```json
+{ "status": "shipped" }
+```
+
+**Status Code:** `200 OK`
+
+---
+
+### GET `/orders/find/:id`
+
+### GET `/orders/search?customerName=สมชาย`
+
+**Status Code:** `200 OK`
+
+---
+
+## ✅ หมายเหตุ
+
+- ทุก endpoint รองรับการตอบกลับในรูปแบบ:
+
+```json
+{
+  "success": true,
+  "message": "...",
+  "data": {...}
+}
+```
+
+- หาก error จะได้ response:
+
+```json
+{
+  "success": false,
+  "message": "...",
+  "timestamp": "..."
+}
+```
+
+# 📘 ตัวอย่าง Response จาก Backend API (อย่างละ 1 รายการ)
+
+ไฟล์นี้รวบรวม **ตัวอย่างข้อมูลที่ตอบกลับจากแต่ละ endpoint** แบบเจาะจงเพียง 1 รายการ เพื่อใช้ในการพัฒนา frontend หรือตรวจสอบรูปแบบข้อมูลที่ต้องรับจาก backend
+
+---
+
+## 🔐 POST `/auth/login`
+
+**Response:**
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "EMP0001",
+    "username": "admin",
+    "fullname": "System Admin",
+    "tel": "0000000000",
+    "email": "admin@example.com",
+    "birthday": "1990-01-01",
+    "created_at": "2024-05-01T12:00:00Z"
+  }
+}
+```
+
+---
+
+## 👤 GET `/customer/find/:id`
+
+```json
+{
+  "id": "CUST0001",
+  "fullname": "สมชาย ใจดี",
+  "nickname": "ชาย",
+  "facebook": "fb123",
+  "line": "line123",
+  "tel": "0812345678",
+  "address": "กรุงเทพ",
+  "birthday": "1990-01-01",
+  "created_at": "2024-04-01T09:00:00Z"
+}
+```
+
+---
+
+## 👨‍💼 GET `/employees/find/:id`
+
+```json
+{
+  "id": "EMP0002",
+  "username": "jane",
+  "fullname": "Jane Smith",
+  "tel": "0891234567",
+  "email": "jane@example.com",
+  "birthday": "1992-07-10",
+  "created_at": "2024-04-10T10:00:00Z"
+}
+```
+
+---
+
+## 📦 GET `/product/find/:id`
+
+```json
+{
+  "id": "P0001",
+  "name": "สบู่สมุนไพร",
+  "price": 79.99,
+  "description": "สบู่กลิ่นตะไคร้ธรรมชาติ",
+  "image": "https://example.com/image.jpg",
+  "created_at": "2024-03-15T08:30:00Z"
+}
+```
+
+---
+
+## 🧾 GET `/orders/find/:id`
+
+```json
+{
+  "id": "ORD-00001",
+  "status": "pending",
+  "total_amount": 159.98,
+  "notes": "จัดส่งด่วน",
+  "created_at": "2024-05-01T13:00:00Z",
+  "updated_at": "2024-05-01T13:00:00Z",
+  "customer": {
+    "id": "CUST0001",
+    "fullname": "สมชาย ใจดี"
+  },
+  "employee": {
+    "id": "EMP0001",
+    "fullname": "System Admin"
+  },
+  "items": [
+    {
+      "product_id": "P0001",
+      "quantity": 2,
+      "price_per_unit": 79.99,
+      "total_price": 159.98
+    }
+  ]
+}
+```
+
+---
+
+## ⚠️ หมายเหตุ
+
+- ข้อมูลในตัวอย่างนี้จำลองจากรูปแบบของระบบจริง
+- โครงสร้างทั้งหมดจะอยู่ภายใต้ `data` ของ response:
+
+```json
+{
+  "success": true,
+  "message": "ข้อความ",
+  "data": { ... }
+}
+```
+
+หากต้องการตัวอย่าง `error`, `pagination`, หรือ `list` เต็มรูปแบบ สามารถแจ้งเพิ่มเติมได้เลยครับ
