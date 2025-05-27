@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>API Routes Full Documentation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-800 font-sans p-10">
+  <div class="max-w-5xl mx-auto">
+    <h1 class="text-4xl font-bold mb-8 text-blue-700">API Routes Documentation</h1>
+    <p class="mb-8">
+      🔗 <a href="/logs" class="text-blue-600 hover:underline">Go to Logs Server</a>
+    </p>
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-gray-900 mb-4">/auth</h2>
+      <ul class="list-disc pl-6 space-y-1">
+        <li><b>POST /auth/login</b></li>
+        <pre class="bg-gray-100 p-4 mt-2 rounded text-sm overflow-x-auto">
+<b>Request:</b>
+{
+  "username": "admin",
+  "password": "admin1234"
+}
+
+<b>Response:</b>
+{
+  "access_token": "JWT_TOKEN",
+  "user": {
+    "id": "EMP0001",
+    "username": "admin",
+    "fullname": "System Admin",
+    "email": "admin@example.com",
+    "tel": "0000000000",
+    "birthday": "1990-01-01T00:00:00.000Z",
+    "created_at": "2024-01-01T00:00:00.000Z"
+  }
+}
+        </pre>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-gray-900 mb-4">/customer</h2>
+      <ul class="list-disc pl-6 space-y-1">
+        <li><b>POST /customer/register</b></li>
+        <pre class="bg-gray-100 p-4 mt-2 rounded text-sm overflow-x-auto">
+<b>Request:</b>
+{
+  "tel": "0123456789",
+  "line": "line_id",
+  "facebook": "facebook_user",
+  "fullname": "John Doe",
+  "nickname": "Johnny",
+  "address": "123 Road, City",
+  "birthday": "2000-01-01"
+}
+
+<b>Response:</b>
+{
+  "success": true,
+  "message": "Register successfully.",
+  "data": {
+    "id": "CUST0002",
+    "tel": "0123456789",
+    "line": "line_id",
+    "facebook": "facebook_user",
+    "fullname": "John Doe",
+    "nickname": "Johnny",
+    "address": "123 Road, City",
+    "birthday": "2000-01-01T00:00:00.000Z",
+    "created_at": "2024-01-01T00:00:00.000Z"
+  }
+}
+        </pre>
+        <li><b>GET /customer/search?query=jo&page=1&pageSize=10</b> — <i>page, pageSize are optional</i></li>
+        <li><b>GET /customer/find/:id</b></li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-gray-900 mb-4">/employees</h2>
+      <ul class="list-disc pl-6 space-y-1">
+        <li><b>POST /employees/register</b></li>
+        <pre class="bg-gray-100 p-4 mt-2 rounded text-sm overflow-x-auto">
+<b>Request:</b>
+{
+  "username": "john123",
+  "password": "securepass",
+  "fullname": "John Smith",
+  "tel": "0123456789",
+  "email": "john@example.com",
+  "birthday": "1992-04-15"
+}
+
+<b>Response:</b>
+{
+  "success": true,
+  "message": "Register successfully.",
+  "data": {
+    "id": "EMP0002",
+    "username": "john123",
+    "fullname": "John Smith",
+    ...
+  }
+}
+        </pre>
+        <li><b>GET /employees/search?q=jo&page=1&pageSize=10</b> — <i>q, page, pageSize are optional</i></li>
+        <li><b>GET /employees/find/:id</b></li>
+        <li><b>GET /employees/me</b></li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-gray-900 mb-4">/orders</h2>
+      <ul class="list-disc pl-6 space-y-1">
+        <li><b>POST /orders/register</b></li>
+        <pre class="bg-gray-100 p-4 mt-2 rounded text-sm overflow-x-auto">
+<b>Request:</b>
+{
+  "customerId": "CUST0001",
+  "employeeId": "EMP0001",  // optional
+  "items": [
+    {
+      "productId": "P0001",
+      "quantity": 2
+    }
+  ],
+  "notes": "Urgent"  // optional
+}
+
+<b>Response:</b>
+{
+  "success": true,
+  "message": "Register successfully.",
+  "data": {
+    "id": "ORD-00001",
+    ...
+  }
+}
+        </pre>
+        <li><b>GET /orders/list?page=1&pageSize=10</b> — <i>page, pageSize are optional</i></li>
+        <li><b>GET /orders/find/:id</b></li>
+        <li><b>PUT /orders/update/:id/status</b></li>
+        <li><b>DELETE /orders/delete/:id</b></li>
+        <li><b>GET /orders/search</b> — <i>All query parameters (orderId, customerId, customerName, employeeId,
+            status,
+            page, pageSize) are optional</i></li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-gray-900 mb-4">/product</h2>
+      <ul class="list-disc pl-6 space-y-1">
+        <li><b>POST /product/register</b></li>
+        <pre class="bg-gray-100 p-4 mt-2 rounded text-sm overflow-x-auto">
+<b>Request:</b>
+{
+  "name": "Product A",
+  "price": 100.5,
+  "description": "This is a great product.",
+  "image": "product-a.jpg"
+}
+
+<b>Response:</b>
+{
+  "success": true,
+  "message": "Register successfully.",
+  "data": {
+    "id": "P0005",
+    ...
+  }
+}
+        </pre>
+        <li><b>GET /product/search?q=term</b> — <i>q is required</i></li>
+        <li><b>GET /product/find/:id</b></li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="mb-10">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-4">ตัวอย่าง Response สำหรับ GET Requests</h2>
+
+    <div class="mb-6">
+      <h3 class="text-xl font-semibold mb-2">GET /customer/find/CUST0001</h3>
+      <pre class="bg-gray-100 p-4 rounded text-sm overflow-x-auto">
+{
+  "success": true,
+  "message": "Get successfully.",
+  "data": {
+    "id": "CUST0001",
+    "tel": "0123456789",
+    "line": "line123",
+    "facebook": "john.fb",
+    "fullname": "John Doe",
+    "nickname": "Johnny",
+    "address": "123 Main St",
+    "birthday": "2000-01-01T00:00:00.000Z",
+    "created_at": "2024-05-01T10:00:00.000Z"
+  }
+}
+        </pre>
+    </div>
+
+    <div class="mb-6">
+      <h3 class="text-xl font-semibold mb-2">GET /orders/find/ORD-00001</h3>
+      <pre class="bg-gray-100 p-4 rounded text-sm overflow-x-auto">
+{
+  "success": true,
+  "message": "Get successfully.",
+  "data": {
+    "id": "ORD-00001",
+    "customer_id": "CUST0001",
+    "employee_id": "EMP0001",
+    "total_amount": 300.00,
+    "status": "pending",
+    "notes": "Urgent delivery",
+    "items": [
+      {
+        "product_id": "P0001",
+        "quantity": 2,
+        "price_per_unit": 150,
+        "total_price": 300
+      }
+    ],
+    "created_at": "2024-05-01T12:00:00.000Z",
+    "updated_at": "2024-05-01T12:00:00.000Z"
+  }
+}
+        </pre>
+    </div>
+
+    <div class="mb-6">
+      <h3 class="text-xl font-semibold mb-2">GET /product/find/P0001</h3>
+      <pre class="bg-gray-100 p-4 rounded text-sm overflow-x-auto">
+{
+  "success": true,
+  "message": "Get successfully.",
+  "data": {
+    "id": "P0001",
+    "name": "Product A",
+    "price": 199.99,
+    "description": "A sample product",
+    "image": "product-a.jpg",
+    "created_at": "2024-05-01T11:00:00.000Z"
+  }
+}
+        </pre>
+    </div>
+  </section>
+  </div>
+</body>
+
+
+</html>

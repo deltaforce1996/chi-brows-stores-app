@@ -28,4 +28,9 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
 };
 
 // Log the configuration object to the console
-console.log('TypeORM Configuration:', typeOrmConfig);
+console.log('host:', process.env.DB_HOST || 'localhost ');
+console.log('port:', Number(process.env.DB_PORT) || 3306);
+console.log('username:', process.env.DB_USER || 'root');
+console.log('password:', process.env.DB_PASS || '');
+console.log('database:', process.env.DB_NAME || 'yourdb');
+// console.log('TypeORM Configuration:', typeOrmConfig);

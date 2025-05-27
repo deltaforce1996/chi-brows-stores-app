@@ -1,6 +1,35 @@
-version: '3.8'
+version: "3.8"
 
 services:
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=chi_brows_stores
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - chi-brows-stores-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_HOST=mysql
+      - PMA_PORT=3306
+    depends_on:
+      - mysql
+    networks:
+      - chi-brows-stores-network
+
   server:
     build:
       context: ./server
@@ -11,31 +40,13 @@ services:
       - "3000:3000"
     depends_on:
       - mysql
-  mysql:
-    image: mysql:8.0
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=chi_brows_stores
-    volumes:
-      - mysql_data:/var/lib/mysql
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    ports:
-      - "8081:80"
-    environment:
-      - PMA_HOST=mysql
-      - PMA_PORT=3306
-    depends_on:
-      - mysql
+    networks:
+      - chi-brows-stores-network
 
 
 volumes:
   mysql_data:
 
 networks:
-  default:
-    name: chi-brows-stores-network
+  chi-brows-stores-network:
     driver: bridge
