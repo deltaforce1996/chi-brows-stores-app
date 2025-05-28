@@ -17,7 +17,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
-      
+
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     ports:
@@ -36,13 +36,14 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./server/.env
+    volumes:
+      - ./server/public:/usr/src/app/public
     ports:
       - "3000:3000"
     depends_on:
       - mysql
     networks:
       - chi-brows-stores-network
-
 
 volumes:
   mysql_data:

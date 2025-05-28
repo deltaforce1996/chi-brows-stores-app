@@ -353,6 +353,141 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "register-with-customer",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{BARER_TOKEN}}"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"customer\": {\r\n        \"tel\": \"0812345678\",\r\n        \"line\": \"line_id_001\",\r\n        \"facebook\": \"fb_user_001\",\r\n        \"fullname\": \"สมชาย ใจดี\",\r\n        \"nickname\": \"ชาย\",\r\n        \"address\": \"123/45 หมู่บ้านตัวอย่าง กรุงเทพฯ\",\r\n        \"birthday\": \"1990-05-01\"\r\n    },\r\n    \"employeeId\": \"EMP0001\",\r\n    \"items\": [\r\n        {\r\n            \"productId\": \"P0001\",\r\n            \"quantity\": 2\r\n        },\r\n        {\r\n            \"productId\": \"P0002\",\r\n            \"quantity\": 1\r\n        }\r\n    ],\r\n    \"notes\": \"ลูกค้าสั่งรอบเช้า จัดส่งด่วน\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/orders/register-with-customer"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "uploads",
+			"item": [
+				{
+					"name": "upload [emp]",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "postman-cloud:///1ef5ad7f-d969-4f30-8500-9bf0e191a329"
+								}
+							]
+						},
+						"url": "{{BASE_URL}}/upload/employee/EMP0001"
+					},
+					"response": []
+				},
+				{
+					"name": "upload [cust]",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "postman-cloud:///1ef5ad7f-d969-4f30-8500-9bf0e191a329"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/upload/customer/CUST0001",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"upload",
+								"customer",
+								"CUST0001"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "upload [order]",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "postman-cloud:///1ef5ad7f-d969-4f30-8500-9bf0e191a329"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/upload/order/ORD-00001",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"upload",
+								"order",
+								"ORD-00001"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-by-owner",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{BARER_TOKEN}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{BASE_URL}}/upload/owner/ORD-00001"
+					},
+					"response": []
 				}
 			]
 		}

@@ -4,12 +4,13 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   UseFilters,
   // UseGuards,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
-import { CreateEmployeeDto } from './dtos/employee.dto';
+import { CreateEmployeeDto, UpdateEmployeeDto } from './dtos/employee.dto';
 // import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import {
@@ -80,5 +81,11 @@ export class EmployeeController {
   async getMe(@CurrentUser() user: any) {
     const result = await this.employeeService.getById(user.id);
     return new Successfully<EmployeeBase>('Get successfully.', result);
+  }
+
+  @Put('update/:id')
+  async update(@Param('id') id: string, @Body() dto: UpdateEmployeeDto) {
+    const result = await this.employeeService.update(id, dto);
+    return new Successfully<EmployeeBase>('Update successfully.', result);
   }
 }

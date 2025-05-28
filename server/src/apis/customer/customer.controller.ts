@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   UseFilters,
   // UseGuards,
@@ -16,7 +17,7 @@ import {
   ResultNotFoundExceptFilter,
 } from 'src/errors/filter.error';
 import { CustomerService } from './customer.service';
-import { CreatCustomerDto } from './dtos/customer.dto';
+import { CreatCustomerDto, UpdateCustomerDto } from './dtos/customer.dto';
 import { Successfully } from 'src/res/successfully';
 import { CustBase, CustomerListResponse } from 'src/types/cust.interface';
 // import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -69,5 +70,11 @@ export class CustomerController {
   async getById(@Param('id') id: string) {
     const result = await this.custService.getById(id);
     return new Successfully<CustBase>('Get successfully.', result);
+  }
+
+  @Put('update/:id')
+  async update(@Param('id') id: string, @Body() dto: UpdateCustomerDto) {
+    const result = await this.custService.update(id, dto);
+    return new Successfully<CustBase>('Update successfully.', result);
   }
 }

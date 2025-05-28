@@ -12,6 +12,10 @@ async function bootstrap() {
   app.setBaseViewsDir(join(process.cwd(), 'views'));
   app.setViewEngine('hbs');
 
+  app.useStaticAssets(join(process.cwd(), 'public/uploads'), {
+    prefix: '/uploads',
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

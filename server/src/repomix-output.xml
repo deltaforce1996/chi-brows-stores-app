@@ -1,0 +1,2547 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+apis/auth/auth.controller.ts
+apis/auth/auth.module.ts
+apis/auth/auth.service.ts
+apis/auth/guards/jwt-auth.guard.ts
+apis/auth/strategies/jwt.strategy.ts
+apis/customer/customer.controller.ts
+apis/customer/customer.module.ts
+apis/customer/customer.service.ts
+apis/customer/dtos/customer.dto.ts
+apis/employee/dtos/employee.dto.ts
+apis/employee/employee.controller.ts
+apis/employee/employee.module.ts
+apis/employee/employee.service.ts
+apis/log-viewer/log-viewer.controller.ts
+apis/log-viewer/log-viewer.module.ts
+apis/order/dto/order.dto.ts
+apis/order/order.controller.ts
+apis/order/order.module.ts
+apis/order/order.service.ts
+apis/product/dto/product.dto.ts
+apis/product/product.controller.ts
+apis/product/product.module.ts
+apis/product/product.service.ts
+apis/ีupload/upload.controller.ts
+apis/ีupload/upload.module.ts
+apis/ีupload/upload.service.ts
+app.controller.ts
+app.module.ts
+app.service.ts
+common/decorators/current-user.decorator.ts
+configs/typeorm.config.ts
+db/entities/cust.entity.ts
+db/entities/emp.entity.ts
+db/entities/order-item.entity.ts
+db/entities/order.entity.ts
+db/entities/product.entity.ts
+db/entities/upload.entity.ts
+db/migrations/1743845555352-InitEmployeeSeed.ts
+db/migrations/1743845555352-InitProductSeed.ts
+errors/base.error.ts
+errors/exception.error.ts
+errors/filter.error.ts
+main.ts
+middlewares/logger.middleware.ts
+res/failed.error.ts
+res/successfully.ts
+types/cust.interface.ts
+types/employee.interface.ts
+types/product.interface.ts
+utils/order-status.enum.ts
+utils/user-status.enum.ts
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="apis/auth/auth.controller.ts">
+import { Body, Controller, Post, UseFilters } from '@nestjs/common';
+import { EmployeeBase } from 'src/types/employee.interface';
+import { AuthService } from './auth.service';
+import { AuthorizedExceptFilter } from 'src/errors/filter.error';
+
+@Controller('auth')
+@UseFilters(new AuthorizedExceptFilter())
+export class AuthController {
+  constructor(private readonly authService: AuthService) {}
+  @Post('login')
+  async login(
+    @Body() body: { username: string; password: string },
+  ): Promise<{ access_token: string; user: EmployeeBase }> {
+    return await this.authService.login(body.username, body.password);
+  }
+}
+</file>
+
+<file path="apis/auth/auth.module.ts">
+import { Module } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import { EmployeeModule } from '../employee/employee.module';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './strategies/jwt.strategy';
+
+@Module({
+  providers: [AuthService, JwtStrategy],
+  controllers: [AuthController],
+  imports: [
+    EmployeeModule,
+    PassportModule,
+    JwtModule.register({
+      secret: 'yourSecretKey',
+      signOptions: { expiresIn: '1d' },
+    }),
+  ],
+})
+export class AuthModule {}
+</file>
+
+<file path="apis/auth/auth.service.ts">
+import { Injectable } from '@nestjs/common';
+import { EmployeeService } from '../employee/employee.service';
+import { JwtService } from '@nestjs/jwt';
+import { EmployeeBase } from 'src/types/employee.interface';
+import { AuthorizedExcept } from 'src/errors/exception.error';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly employeeService: EmployeeService,
+    private readonly jwtService: JwtService,
+  ) {}
+  async validateUser(username: string, pass: string) {
+    const user: EmployeeBase | null = await this.employeeService.login(
+      username,
+      pass,
+    );
+    if (!user) return null;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...result } = user;
+    return result;
+  }
+
+  async login(
+    username: string,
+    password: string,
+  ): Promise<{ access_token: string; user: EmployeeBase }> {
+    const user = await this.validateUser(username, password);
+    if (!user) throw new AuthorizedExcept('Invalid credentials');
+    const payload = { sub: user.id, username: user.username };
+    const token = this.jwtService.sign(payload);
+    return { access_token: token, user };
+  }
+}
+</file>
+
+<file path="apis/auth/guards/jwt-auth.guard.ts">
+import { Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {}
+</file>
+
+<file path="apis/auth/strategies/jwt.strategy.ts">
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor() {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: 'yourSecretKey',
+    });
+  }
+
+  validate(payload: any) {
+    return { id: payload.sub, username: payload.username };
+  }
+}
+</file>
+
+<file path="apis/customer/customer.controller.ts">
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseFilters,
+  // UseGuards,
+} from '@nestjs/common';
+import {
+  AuthorizedExceptFilter,
+  BadRequestExceptFilter,
+  ForbiddenExceptionFilter,
+  InternalServerErrorExceptFilter,
+  ResultNotFoundExceptFilter,
+} from 'src/errors/filter.error';
+import { CustomerService } from './customer.service';
+import { CreatCustomerDto, UpdateCustomerDto } from './dtos/customer.dto';
+import { Successfully } from 'src/res/successfully';
+import { CustBase, CustomerListResponse } from 'src/types/cust.interface';
+// import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+
+@Controller('customer')
+@UseFilters(
+  new ResultNotFoundExceptFilter(),
+  new BadRequestExceptFilter(),
+  new AuthorizedExceptFilter(),
+  new ForbiddenExceptionFilter(),
+  new InternalServerErrorExceptFilter(),
+)
+export class CustomerController {
+  constructor(private readonly custService: CustomerService) {}
+
+  @Post('register')
+  async register(@Body() dto: CreatCustomerDto) {
+    const result = await this.custService.register(dto);
+    return new Successfully<CustBase>('Register successfully.', result);
+  }
+
+  // @UseGuards(JwtAuthGuard)
+  @Get('search')
+  async searchCustomer(
+    @Query('query') query: string,
+    @Query('page') page = 1,
+    @Query('pageSize') pageSize = 10,
+  ): Promise<Successfully<CustomerListResponse>> {
+    const { data, total } = await this.custService.searchUser(
+      query,
+      Number(page),
+      Number(pageSize),
+    );
+
+    const totalPages = Math.ceil(total / Number(pageSize));
+
+    return new Successfully<CustomerListResponse>('Search successfully.', {
+      items: data,
+      pagination: {
+        page: Number(page),
+        pageSize: Number(pageSize),
+        totalItems: total,
+        totalPages: totalPages,
+      },
+    });
+  }
+
+  // @UseGuards(JwtAuthGuard)
+  @Get('find/:id')
+  async getById(@Param('id') id: string) {
+    const result = await this.custService.getById(id);
+    return new Successfully<CustBase>('Get successfully.', result);
+  }
+
+  @Put('update/:id')
+  async update(@Param('id') id: string, @Body() dto: UpdateCustomerDto) {
+    const result = await this.custService.update(id, dto);
+    return new Successfully<CustBase>('Update successfully.', result);
+  }
+}
+</file>
+
+<file path="apis/customer/customer.module.ts">
+import { Module } from '@nestjs/common';
+import { CustomerService } from './customer.service';
+import { CustomerController } from './customer.controller';
+import { CustEntity } from 'src/db/entities/cust.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([CustEntity])],
+  providers: [CustomerService],
+  controllers: [CustomerController],
+  exports: [CustomerService],
+})
+export class CustomerModule {}
+</file>
+
+<file path="apis/customer/customer.service.ts">
+import { InjectRepository } from '@nestjs/typeorm';
+import { CustEntity } from 'src/db/entities/cust.entity';
+import { Repository } from 'typeorm';
+import { CreatCustomerDto, UpdateCustomerDto } from './dtos/customer.dto';
+import { CustBase } from 'src/types/cust.interface';
+import {
+  BadRequestExcept,
+  ResultNotFoundExcept,
+} from 'src/errors/exception.error';
+import { Injectable } from '@nestjs/common';
+import { UserStatus } from 'src/utils/user-status.enum';
+
+@Injectable()
+export class CustomerService {
+  constructor(
+    @InjectRepository(CustEntity)
+    private readonly custRepo: Repository<CustEntity>,
+  ) {}
+
+  async register(dto: CreatCustomerDto): Promise<CustBase> {
+    // ตรวจสอบข้อมูลซ้ำ เช่น เบอร์โทร, line, หรือ facebook
+    const exists = await this.custRepo.findOne({
+      where: [
+        { tel: dto.tel },
+        { line: dto.line },
+        { facebook: dto.facebook },
+        { fullname: dto.fullname },
+      ],
+    });
+
+    if (exists) {
+      throw new BadRequestExcept(
+        'ข้อมูลซ้ำ: เบอร์โทร, Line ID หรือ Facebook มีอยู่แล้ว',
+      );
+    }
+
+    // หา id ล่าสุด
+    const last = await this.custRepo
+      .createQueryBuilder('emp')
+      .orderBy('emp.id', 'DESC')
+      .limit(1)
+      .getOne();
+
+    const nextId = this.generateNextId(last?.id);
+
+    const newCust = this.custRepo.create({
+      ...dto,
+      id: nextId,
+      birthday: new Date(dto.birthday),
+      status: UserStatus.ACTIVE,
+    });
+
+    const saved = await this.custRepo.save(newCust);
+    return saved as CustBase;
+  }
+
+  async getById(id: string): Promise<CustBase> {
+    const cust = await this.custRepo.findOneBy({ id });
+    if (!cust) throw new ResultNotFoundExcept('Cust not found.');
+    return cust;
+  }
+
+  async searchUser(
+    query: string,
+    page = 1,
+    pageSize = 10,
+  ): Promise<{ data: CustBase[]; total: number }> {
+    const queryBuilder = this.custRepo.createQueryBuilder('cust');
+
+    if (query) {
+      queryBuilder
+        .where('cust.nickname ILIKE :search', { search: `%${query}%` })
+        .orWhere('cust.fullname ILIKE :search', { search: `%${query}%` })
+        .orWhere('emp.tel ILIKE :search', { search: `%${query}%` })
+        .orWhere('emp.line ILIKE :search', { search: `%${query}%` })
+        .orWhere('emp.facebook ILIKE :search', { search: `%${query}%` })
+        .orWhere('emp.email ILIKE :search', { search: `%${query}%` })
+        .orWhere('emp.id LIKE :search', { search: `%${query}%` });
+    }
+
+    queryBuilder
+      .orderBy('cust.created_at', 'DESC')
+      .skip((page - 1) * pageSize)
+      .take(pageSize);
+
+    const [data, total] = await queryBuilder.getManyAndCount();
+
+    if (data.length === 0) {
+      throw new ResultNotFoundExcept('Cust not found.');
+    }
+
+    return { data, total };
+  }
+
+  private generateNextId(lastId?: string): string {
+    if (!lastId) return 'CUST0001';
+    const num = parseInt(lastId.replace('CUST', ''), 10) + 1;
+    return `CUST${num.toString().padStart(4, '0')}`;
+  }
+
+  async update(id: string, dto: UpdateCustomerDto): Promise<CustBase> {
+    const cust = await this.custRepo.findOneBy({ id });
+    if (!cust) throw new ResultNotFoundExcept('Customer not found.');
+
+    const updated = Object.assign(cust, {
+      ...dto,
+      birthday: dto.birthday ? new Date(dto.birthday) : cust.birthday,
+    });
+
+    return await this.custRepo.save(updated);
+  }
+}
+</file>
+
+<file path="apis/customer/dtos/customer.dto.ts">
+import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
+import { UserStatus } from 'src/utils/user-status.enum';
+
+export class CreatCustomerDto {
+  @IsString()
+  tel: string;
+  @IsString()
+  line: string;
+  @IsString()
+  facebook: string;
+  @IsString()
+  fullname: string;
+  @IsString()
+  nickname: string;
+  @IsString()
+  address: string;
+  @IsDateString()
+  birthday: Date;
+}
+
+export class UpdateCustomerDto {
+  @IsOptional()
+  @IsString()
+  tel?: string;
+
+  @IsOptional()
+  @IsString()
+  line?: string;
+
+  @IsOptional()
+  @IsString()
+  facebook?: string;
+
+  @IsOptional()
+  @IsString()
+  fullname?: string;
+
+  @IsOptional()
+  @IsString()
+  nickname?: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @IsOptional()
+  @IsDateString()
+  birthday?: string;
+
+  @IsOptional()
+  @IsEnum(UserStatus)
+  status?: UserStatus;
+}
+</file>
+
+<file path="apis/employee/dtos/employee.dto.ts">
+import {
+  IsString,
+  IsEmail,
+  IsDateString,
+  IsOptional,
+  IsEnum,
+} from 'class-validator';
+import { UserStatus } from 'src/utils/user-status.enum';
+
+export class CreateEmployeeDto {
+  @IsString()
+  username: string;
+
+  @IsString()
+  password: string;
+
+  @IsString()
+  fullname: string;
+
+  @IsString()
+  tel: string;
+
+  @IsEmail()
+  email: string;
+
+  @IsDateString()
+  birthday: string;
+}
+
+export class UpdateEmployeeDto {
+  @IsOptional()
+  @IsString()
+  fullname?: string;
+
+  @IsOptional()
+  @IsString()
+  tel?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsDateString()
+  birthday?: string;
+
+  @IsOptional()
+  @IsEnum(UserStatus)
+  status?: UserStatus;
+}
+</file>
+
+<file path="apis/employee/employee.controller.ts">
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseFilters,
+  // UseGuards,
+} from '@nestjs/common';
+import { EmployeeService } from './employee.service';
+import { CreateEmployeeDto, UpdateEmployeeDto } from './dtos/employee.dto';
+// import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import {
+  AuthorizedExceptFilter,
+  BadRequestExceptFilter,
+  ForbiddenExceptionFilter,
+  InternalServerErrorExceptFilter,
+  ResultNotFoundExceptFilter,
+} from 'src/errors/filter.error';
+import { Successfully } from 'src/res/successfully';
+import {
+  EmployeeBase,
+  EmployeeSearchResponse,
+} from 'src/types/employee.interface';
+
+@Controller('employees')
+@UseFilters(
+  new ResultNotFoundExceptFilter(),
+  new BadRequestExceptFilter(),
+  new AuthorizedExceptFilter(),
+  new ForbiddenExceptionFilter(),
+  new InternalServerErrorExceptFilter(),
+)
+export class EmployeeController {
+  constructor(private readonly employeeService: EmployeeService) {}
+
+  @Post('register')
+  async register(@Body() dto: CreateEmployeeDto) {
+    const result = await this.employeeService.register(dto);
+    return new Successfully<EmployeeBase>('Register successfully.', result);
+  }
+
+  // @UseGuards(JwtAuthGuard)
+  @Get('search')
+  async search(
+    @Query('q') q: string,
+    @Query('page') page = 1,
+    @Query('pageSize') pageSize = 10,
+  ) {
+    const { data, total } = await this.employeeService.searchUser(
+      q,
+      Number(page),
+      Number(pageSize),
+    );
+
+    const totalPages = Math.ceil(total / Number(pageSize));
+
+    return new Successfully<EmployeeSearchResponse>('Search successfully.', {
+      items: data,
+      pagination: {
+        page: Number(page),
+        pageSize: Number(pageSize),
+        totalItems: total,
+        totalPages: totalPages,
+      },
+    });
+  }
+
+  // @UseGuards(JwtAuthGuard)
+  @Get('find/:id')
+  async getById(@Param('id') id: string) {
+    const result = await this.employeeService.getById(id);
+    return new Successfully<EmployeeBase>('Get successfully.', result);
+  }
+
+  // @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getMe(@CurrentUser() user: any) {
+    const result = await this.employeeService.getById(user.id);
+    return new Successfully<EmployeeBase>('Get successfully.', result);
+  }
+
+  @Put('update/:id')
+  async update(@Param('id') id: string, @Body() dto: UpdateEmployeeDto) {
+    const result = await this.employeeService.update(id, dto);
+    return new Successfully<EmployeeBase>('Update successfully.', result);
+  }
+}
+</file>
+
+<file path="apis/employee/employee.module.ts">
+import { Module } from '@nestjs/common';
+import { EmployeeService } from './employee.service';
+import { EmployeeController } from './employee.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { EmployeeEntity } from 'src/db/entities/emp.entity';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([EmployeeEntity])],
+  providers: [EmployeeService],
+  controllers: [EmployeeController],
+  exports: [EmployeeService],
+})
+export class EmployeeModule {}
+</file>
+
+<file path="apis/employee/employee.service.ts">
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { EmployeeEntity } from 'src/db/entities/emp.entity';
+import { EmployeeBase } from 'src/types/employee.interface';
+import { CreateEmployeeDto, UpdateEmployeeDto } from './dtos/employee.dto';
+import * as bcrypt from 'bcrypt';
+import { ResultNotFoundExcept } from 'src/errors/exception.error';
+import { Repository } from 'typeorm';
+import { UserStatus } from 'src/utils/user-status.enum';
+
+@Injectable()
+export class EmployeeService {
+  constructor(
+    @InjectRepository(EmployeeEntity)
+    private readonly employeeRepo: Repository<EmployeeEntity>,
+  ) {}
+
+  async register(dto: CreateEmployeeDto): Promise<EmployeeBase> {
+    const last = await this.employeeRepo
+      .createQueryBuilder('emp')
+      .orderBy('emp.id', 'DESC')
+      .limit(1)
+      .getOne();
+
+    const nextId = this.generateNextId(last?.id);
+
+    // ✅ เข้ารหัส password
+    const hashedPassword = await bcrypt.hash(dto.password, 10); // 10 = salt rounds
+
+    const newEmployee = this.employeeRepo.create({
+      ...dto,
+      id: nextId,
+      password: hashedPassword,
+      birthday: new Date(dto.birthday),
+      status: UserStatus.ACTIVE,
+    });
+
+    const saved = await this.employeeRepo.save(newEmployee);
+    return saved as EmployeeBase;
+  }
+
+  async getById(id: string): Promise<EmployeeBase> {
+    const emp = await this.employeeRepo.findOneBy({ id });
+    if (!emp) throw new ResultNotFoundExcept('Employee not found.');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...rest } = emp as EmployeeBase;
+    return rest;
+  }
+
+  async searchUser(
+    query: string,
+    page = 1,
+    pageSize = 10,
+  ): Promise<{ data: EmployeeBase[]; total: number }> {
+    const queryBuilder = this.employeeRepo.createQueryBuilder('emp');
+
+    if (query) {
+      queryBuilder
+        .where('emp.username LIKE :search', { search: `%${query}%` })
+        .orWhere('emp.email LIKE :search', { search: `%${query}%` })
+        .orWhere('emp.fullname LIKE :search', { search: `%${query}%` })
+        .orWhere('emp.tel LIKE :search', { search: `%${query}%` });
+    }
+
+    queryBuilder
+      .orderBy('emp.created_at', 'DESC')
+      .skip((page - 1) * pageSize)
+      .take(pageSize);
+
+    const [result, total] = await queryBuilder.getManyAndCount();
+
+    const emps: EmployeeBase[] = result.map(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      ({ password, ...rest }) => rest as EmployeeBase,
+    );
+
+    return { data: emps, total };
+  }
+
+  async login(
+    username: string,
+    password: string,
+  ): Promise<EmployeeBase | null> {
+    const emp = await this.employeeRepo.findOneBy({ username });
+
+    if (!emp) return null;
+
+    const isMatch = await bcrypt.compare(password, emp.password);
+    if (!isMatch) return null;
+
+    return emp as EmployeeBase;
+  }
+
+  private generateNextId(lastId?: string): string {
+    if (!lastId) return 'EMP0001';
+    const num = parseInt(lastId.replace('EMP', ''), 10) + 1;
+    return `EMP${num.toString().padStart(4, '0')}`;
+  }
+
+  async update(id: string, dto: UpdateEmployeeDto): Promise<EmployeeBase> {
+    const emp = await this.employeeRepo.findOneBy({ id });
+    if (!emp) throw new ResultNotFoundExcept('Employee not found.');
+
+    const updated = Object.assign(emp, {
+      ...dto,
+      birthday: dto.birthday ? new Date(dto.birthday) : emp.birthday,
+    });
+
+    const saved = await this.employeeRepo.save(updated);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...rest } = saved;
+    return rest;
+  }
+}
+</file>
+
+<file path="apis/log-viewer/log-viewer.controller.ts">
+// src/log-viewer/log-viewer.controller.ts
+import { Controller, Get, Query, Render } from '@nestjs/common';
+import * as fs from 'fs-extra';
+import * as path from 'path';
+
+@Controller('logs')
+export class LogViewerController {
+  @Get()
+  @Render('log_server_report')
+  rootPage() {
+    return {};
+  }
+
+  @Get('api')
+  async getLog(@Query('date') date: string) {
+    const logDate = date || new Date().toISOString().split('T')[0];
+    const logPath = path.resolve(
+      process.cwd(),
+      `public/logs-server/${logDate}.log`,
+    );
+    console.log(logPath);
+    if (await fs.pathExists(logPath)) {
+      const log = await fs.readFile(logPath, 'utf-8');
+      return { log };
+    } else {
+      return { log: 'No logs for this date.' };
+    }
+  }
+}
+</file>
+
+<file path="apis/log-viewer/log-viewer.module.ts">
+import { Module } from '@nestjs/common';
+import { LogViewerController } from './log-viewer.controller';
+
+@Module({
+  controllers: [LogViewerController],
+  providers: [],
+})
+export class LogViewerModule {}
+</file>
+
+<file path="apis/order/dto/order.dto.ts">
+// src/order/dto/create-order-item.dto.ts
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import { CreatCustomerDto } from 'src/apis/customer/dtos/customer.dto';
+import { OrderStatus } from 'src/utils/order-status.enum';
+
+export class CreateOrderItemDto {
+  @IsNotEmpty()
+  @IsString()
+  productId: string; // ID of the product being ordered
+
+  @IsNumber()
+  @IsPositive() // Quantity must be greater than 0
+  quantity: number;
+}
+
+export class CreateOrderDto {
+  @IsNotEmpty()
+  @IsString()
+  customerId: string;
+
+  @IsOptional()
+  @IsString()
+  employeeId?: string; // Optional employee handling the order
+
+  @IsArray()
+  @ValidateNested({ each: true }) // Validate each item in the array
+  @Type(() => CreateOrderItemDto) // Tell class-validator how to transform
+  @IsNotEmpty({ each: true })
+  items: CreateOrderItemDto[];
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
+export class UpdateOrderStatusDto {
+  @IsNotEmpty()
+  @IsEnum(OrderStatus)
+  status: OrderStatus;
+}
+
+export class CreateOrderWithCustomerDto {
+  @ValidateNested()
+  @Type(() => CreatCustomerDto)
+  customer: CreatCustomerDto;
+
+  @IsOptional()
+  @IsString()
+  employeeId?: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderItemDto)
+  items: CreateOrderItemDto[];
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+</file>
+
+<file path="apis/order/order.controller.ts">
+// src/order/order.controller.ts
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  Query,
+  Put,
+  UseFilters,
+} from '@nestjs/common';
+import { OrderService } from './order.service';
+import {
+  CreateOrderDto,
+  CreateOrderWithCustomerDto,
+  UpdateOrderStatusDto,
+} from './dto/order.dto';
+import { Successfully } from 'src/res/successfully';
+import { OrderStatus } from 'src/utils/order-status.enum';
+import {
+  AuthorizedExceptFilter,
+  BadRequestExceptFilter,
+  ForbiddenExceptionFilter,
+  InternalServerErrorExceptFilter,
+  ResultNotFoundExceptFilter,
+} from 'src/errors/filter.error';
+
+@UseFilters(
+  new ResultNotFoundExceptFilter(),
+  new BadRequestExceptFilter(),
+  new AuthorizedExceptFilter(),
+  new ForbiddenExceptionFilter(),
+  new InternalServerErrorExceptFilter(),
+)
+@Controller('orders')
+export class OrderController {
+  constructor(private readonly orderService: OrderService) {}
+
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() createOrderDto: CreateOrderDto): Promise<any> {
+    const result = await this.orderService.create(createOrderDto);
+    return new Successfully<any>('Register successfully.', result);
+  }
+
+  @Get('list')
+  async findAll(
+    @Query('page') page = 1,
+    @Query('pageSize') pageSize = 10,
+  ): Promise<any> {
+    const { data, total } = await this.orderService.findAll(
+      Number(page),
+      Number(pageSize),
+    );
+
+    const totalPages = Math.ceil(total / Number(pageSize));
+
+    return new Successfully<any>('Get successfully.', {
+      items: data,
+      pagination: {
+        page: Number(page),
+        pageSize: Number(pageSize),
+        totalItems: total,
+        totalPages: totalPages,
+      },
+    });
+  }
+
+  @Get('find/:id')
+  async findOne(@Param('id') id: string): Promise<any> {
+    const result = await this.orderService.findOne(id);
+    return new Successfully<any>('Get successfully.', result);
+  }
+
+  @Put('update/:id/status')
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() updateOrderStatusDto: UpdateOrderStatusDto,
+  ): Promise<any> {
+    const result = await this.orderService.updateStatus(
+      id,
+      updateOrderStatusDto,
+    );
+    return new Successfully<any>('Update successfully.', result);
+  }
+
+  @Delete('delete/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id') id: string): Promise<any> {
+    await this.orderService.remove(id);
+    return new Successfully<any>('Delete successfully.');
+  }
+
+  @Get('search')
+  async searchOrders(
+    @Query('orderId') orderId?: string,
+    @Query('customerId') customerId?: string,
+    @Query('customerName') customerName?: string,
+    @Query('employeeId') employeeId?: string,
+    @Query('status') status?: OrderStatus,
+    @Query('page') page = 1,
+    @Query('pageSize') pageSize = 10,
+  ) {
+    const filters = {
+      orderId,
+      customerId,
+      customerName,
+      employeeId,
+      status,
+    };
+
+    const { data, total } = await this.orderService.searchOrders(
+      filters,
+      Number(page),
+      Number(pageSize),
+    );
+
+    const totalPages = Math.ceil(total / Number(pageSize));
+
+    return new Successfully<any>('Get successfully.', {
+      items: data,
+      pagination: {
+        page: Number(page),
+        pageSize: Number(pageSize),
+        totalItems: total,
+        totalPages: totalPages,
+      },
+    });
+  }
+
+  @Post('register-with-customer')
+  @HttpCode(HttpStatus.CREATED)
+  async createWithCustomer(
+    @Body() dto: CreateOrderWithCustomerDto,
+  ): Promise<any> {
+    const result = await this.orderService.createWithCustomer(dto);
+    return new Successfully<any>(
+      'Register order and customer successfully.',
+      result,
+    );
+  }
+}
+</file>
+
+<file path="apis/order/order.module.ts">
+import { Module } from '@nestjs/common';
+import { OrderController } from './order.controller';
+import { OrderService } from './order.service';
+import { OrderEntity } from 'src/db/entities/order.entity';
+import { CustEntity } from 'src/db/entities/cust.entity';
+import { EmployeeEntity } from 'src/db/entities/emp.entity';
+import { ProductEntity } from 'src/db/entities/product.entity';
+import { OrderItemEntity } from 'src/db/entities/order-item.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { CustomerModule } from '../customer/customer.module';
+import { CustomerService } from '../customer/customer.service';
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([
+      OrderEntity,
+      CustEntity,
+      EmployeeEntity,
+      ProductEntity,
+      OrderItemEntity,
+    ]),
+    CustomerModule,
+  ],
+  controllers: [OrderController],
+  providers: [OrderService, CustomerService],
+})
+export class OrderModule {}
+</file>
+
+<file path="apis/order/order.service.ts">
+// src/order/order.service.ts
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CustEntity } from 'src/db/entities/cust.entity';
+import { EmployeeEntity } from 'src/db/entities/emp.entity';
+import { OrderItemEntity } from 'src/db/entities/order-item.entity';
+import { OrderEntity } from 'src/db/entities/order.entity';
+import { ProductEntity } from 'src/db/entities/product.entity';
+import { OrderStatus } from 'src/utils/order-status.enum';
+import { Repository, DataSource } from 'typeorm';
+
+import {
+  CreateOrderDto,
+  CreateOrderWithCustomerDto,
+  UpdateOrderStatusDto,
+} from './dto/order.dto';
+import {
+  BadRequestExcept,
+  InternalServerErrorExcept,
+  ResultNotFoundExcept,
+} from 'src/errors/exception.error';
+import { CustomerService } from '../customer/customer.service';
+
+@Injectable()
+export class OrderService {
+  constructor(
+    @InjectRepository(OrderEntity)
+    private readonly orderRepository: Repository<OrderEntity>,
+    private readonly dataSource: DataSource, // Inject DataSource for transactions
+    private readonly customerService: CustomerService,
+  ) {}
+
+  async createWithCustomer(
+    dto: CreateOrderWithCustomerDto,
+  ): Promise<OrderEntity> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const createdCustomer = await this.customerService.register(dto.customer);
+
+      const createOrderDto: CreateOrderDto = {
+        customerId: createdCustomer.id,
+        employeeId: dto.employeeId,
+        items: dto.items,
+        notes: dto.notes,
+      };
+
+      const order = await this.create(createOrderDto);
+      await queryRunner.commitTransaction();
+      return order;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async create(createOrderDto: CreateOrderDto): Promise<OrderEntity> {
+    const { customerId, employeeId, items, notes } = createOrderDto;
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const customer = await queryRunner.manager.findOneBy(CustEntity, {
+        id: customerId,
+      });
+      if (!customer) throw new ResultNotFoundExcept('Customer with ID');
+
+      let employee: EmployeeEntity | null = null;
+      if (employeeId) {
+        employee = await queryRunner.manager.findOneBy(EmployeeEntity, {
+          id: employeeId,
+        });
+        if (!employee) {
+          throw new ResultNotFoundExcept(
+            `Employee with ID "${employeeId}" not found`,
+          );
+        }
+      }
+
+      let totalAmount = 0;
+      const orderItems: OrderItemEntity[] = [];
+
+      for (const itemDto of items) {
+        const product = await queryRunner.manager.findOneBy(ProductEntity, {
+          id: itemDto.productId,
+        });
+        if (!product) {
+          throw new ResultNotFoundExcept(
+            `Product with ID "${itemDto.productId}" not found`,
+          );
+        }
+
+        const pricePerUnit = product.price;
+        const itemTotalPrice = pricePerUnit * itemDto.quantity;
+        totalAmount += itemTotalPrice;
+
+        const orderItem = new OrderItemEntity();
+        orderItem.product_id = product.id;
+        orderItem.product = product;
+        orderItem.quantity = itemDto.quantity;
+        orderItem.price_per_unit = pricePerUnit;
+        orderItem.total_price = itemTotalPrice;
+
+        orderItems.push(orderItem);
+      }
+
+      if (orderItems.length === 0) {
+        throw new BadRequestExcept('Order must contain at least one item');
+      }
+
+      // Generate Order ID like ORD-00001
+      const lastOrder = await queryRunner.manager.findOne(OrderEntity, {
+        where: {},
+        order: { id: 'DESC' },
+      });
+
+      let newOrderNumber = 1;
+      if (lastOrder) {
+        const lastIdNumber = parseInt(lastOrder.id.replace('ORD-', ''), 10);
+        if (!isNaN(lastIdNumber)) {
+          newOrderNumber = lastIdNumber + 1;
+        }
+      }
+
+      const generatedOrderId = `ORD-${newOrderNumber.toString().padStart(5, '0')}`;
+
+      const order = new OrderEntity();
+      order.id = generatedOrderId;
+      order.customer_id = customer.id;
+      order.customer = customer;
+      if (employee) {
+        order.employee_id = employee.id;
+        order.employee = employee;
+      }
+      order.status = OrderStatus.PENDING;
+      order.total_amount = totalAmount;
+      order.notes = notes;
+      order.items = orderItems;
+
+      const savedOrder = await queryRunner.manager.save(OrderEntity, order);
+
+      await queryRunner.commitTransaction();
+      return this.findOne(savedOrder.id);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      if (
+        error instanceof ResultNotFoundExcept ||
+        error instanceof BadRequestExcept
+      ) {
+        throw error;
+      }
+      console.error('Error creating order:', error);
+      throw new InternalServerErrorExcept('Failed to create order');
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async findAll(
+    page = 1,
+    pageSize = 10,
+  ): Promise<{ data: OrderEntity[]; total: number }> {
+    const [data, total] = await this.orderRepository.findAndCount({
+      relations: ['customer', 'employee', 'items', 'items.product'],
+      order: { created_at: 'DESC' },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+
+    return { data, total };
+  }
+
+  async findOne(id: string): Promise<OrderEntity> {
+    const order = await this.orderRepository.findOne({
+      where: { id },
+      relations: ['customer', 'employee', 'items', 'items.product'], // Eager load relations
+    });
+    if (!order) {
+      throw new ResultNotFoundExcept(`Order with ID "${id}" not found`);
+    }
+    return order;
+  }
+
+  async updateStatus(
+    id: string,
+    updateOrderStatusDto: UpdateOrderStatusDto,
+  ): Promise<OrderEntity> {
+    const order = await this.findOne(id); // Reuse findOne to check existence
+
+    order.status = updateOrderStatusDto.status;
+    order.updated_at = new Date(); // Manually update if not auto-updating
+
+    await this.orderRepository.save(order);
+    return this.findOne(id); // Return updated order with relations
+  }
+
+  async remove(id: string): Promise<void> {
+    const result = await this.orderRepository.delete(id); // Cascade delete should handle items
+    if (result.affected === 0)
+      throw new ResultNotFoundExcept(`Order with ID "${id}" not found`);
+  }
+
+  async searchOrders(
+    filters: {
+      orderId?: string;
+      customerId?: string;
+      customerName?: string; // fullname หรือ nickname
+      employeeId?: string;
+      status?: OrderStatus;
+    },
+    page = 1,
+    pageSize = 10,
+  ): Promise<{ data: OrderEntity[]; total: number }> {
+    const queryBuilder = this.dataSource
+      .getRepository(OrderEntity)
+      .createQueryBuilder('order');
+
+    queryBuilder
+      .leftJoinAndSelect('order.customer', 'customer')
+      .leftJoinAndSelect('order.employee', 'employee')
+      .leftJoinAndSelect('order.items', 'items');
+
+    if (filters.orderId) {
+      queryBuilder.andWhere('order.id LIKE :orderId', {
+        orderId: `%${filters.orderId}%`,
+      });
+    }
+
+    if (filters.customerId) {
+      queryBuilder.andWhere('order.customer_id LIKE :customerId', {
+        customerId: `%${filters.customerId}%`,
+      });
+    }
+
+    if (filters.customerName) {
+      queryBuilder.andWhere(
+        '(customer.fullname LIKE :customerName OR customer.nickname LIKE :customerName)',
+        { customerName: `%${filters.customerName}%` },
+      );
+    }
+
+    if (filters.employeeId) {
+      queryBuilder.andWhere('order.employee_id LIKE :employeeId', {
+        employeeId: `%${filters.employeeId}%`,
+      });
+    }
+
+    if (filters.status) {
+      queryBuilder.andWhere('order.status = :status', {
+        status: filters.status,
+      });
+    }
+
+    queryBuilder
+      .orderBy('order.created_at', 'DESC')
+      .skip((page - 1) * pageSize)
+      .take(pageSize);
+
+    const [data, total] = await queryBuilder.getManyAndCount();
+
+    return { data, total };
+  }
+}
+</file>
+
+<file path="apis/product/dto/product.dto.ts">
+import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
+
+export class CreateProductDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsNumber()
+  @Min(0)
+  price: number;
+
+  @IsString()
+  description: string;
+
+  @IsString()
+  image: string; // อาจจะเป็น URL หรือ path ของรูปภาพ
+}
+</file>
+
+<file path="apis/product/product.controller.ts">
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { ProductService } from './product.service';
+import { CreateProductDto } from './dto/product.dto'; // <-- แก้ไข path ของ DTO ให้ถูกต้อง
+import { ProductBase } from 'src/types/product.interface';
+import { Successfully } from 'src/res/successfully';
+
+@Controller('product') // กำหนด prefix path เป็น /product
+export class ProductController {
+  constructor(private readonly productService: ProductService) {}
+
+  @Post('register') // POST /product
+  async registerProduct(@Body() createProductDto: CreateProductDto) {
+    const result = await this.productService.register(createProductDto);
+    return new Successfully<ProductBase>('Register successfully.', result);
+  }
+
+  @Get('search') // GET /product/search?q=...
+  async searchProducts(@Query('q') query: string) {
+    const results = await this.productService.searchProduct(query);
+    return new Successfully<ProductBase[]>('Search successfully.', results);
+  }
+
+  @Get('find/:id') // GET /product/find/P0001
+  async getProductById(@Param('id') id: string): Promise<ProductBase> {
+    return this.productService.getById(id);
+  }
+}
+</file>
+
+<file path="apis/product/product.module.ts">
+import { Module } from '@nestjs/common';
+import { ProductService } from './product.service';
+import { ProductController } from './product.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ProductEntity } from 'src/db/entities/product.entity';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([ProductEntity])],
+  providers: [ProductService],
+  controllers: [ProductController],
+  exports: [ProductService],
+})
+export class ProductModule {}
+</file>
+
+<file path="apis/product/product.service.ts">
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ProductEntity } from 'src/db/entities/product.entity';
+import {
+  BadRequestExcept,
+  ResultNotFoundExcept,
+} from 'src/errors/exception.error';
+import { ProductBase } from 'src/types/product.interface';
+import { ILike, Repository } from 'typeorm';
+import { CreateProductDto } from './dto/product.dto';
+
+@Injectable()
+export class ProductService {
+  constructor(
+    @InjectRepository(ProductEntity) // <-- ใช้ ProductEntity
+    private readonly productRepo: Repository<ProductEntity>, // <-- เปลี่ยนชื่อ repo
+  ) {}
+
+  async register(dto: CreateProductDto): Promise<ProductBase> {
+    // ตรวจสอบว่ามีสินค้าชื่อนี้อยู่แล้วหรือไม่
+    const exists = await this.productRepo.findOne({
+      where: { name: dto.name }, // ตรวจสอบเฉพาะชื่อสินค้า
+    });
+
+    if (exists) {
+      throw new BadRequestExcept('มีสินค้าชื่อนี้อยู่แล้ว');
+    }
+
+    // หา id ล่าสุด
+    const last = await this.productRepo
+      .createQueryBuilder('product') // ใช้ alias 'product'
+      .orderBy('product.id', 'DESC')
+      .limit(1)
+      .getOne();
+
+    const nextId = this.generateNextId(last?.id);
+
+    const newProduct = this.productRepo.create({
+      ...dto,
+      id: nextId,
+    });
+
+    const saved = await this.productRepo.save(newProduct);
+    return saved as ProductBase;
+  }
+
+  async getById(id: string): Promise<ProductBase> {
+    const product = await this.productRepo.findOneBy({ id });
+    if (!product) throw new ResultNotFoundExcept('Product not found.');
+    return product;
+  }
+
+  async searchProduct(query: string): Promise<ProductBase[]> {
+    // ค้นหาจากชื่อสินค้า
+    const result = await this.productRepo.find({
+      where: [{ name: ILike(`%${query}%`) }],
+    });
+    // ไม่ต้อง throw error ถ้าหาไม่เจอ อาจจะคืนค่าเป็น array ว่างก็ได้ แล้วแต่ requirement
+    if (result && result.length === 0)
+      throw new ResultNotFoundExcept('Product not found.');
+    return result;
+  }
+
+  private generateNextId(lastId?: string): string {
+    // ใช้ Prefix 'P' สำหรับ Product
+    const prefix = 'P';
+    if (!lastId) return `${prefix}0001`;
+    const num = parseInt(lastId.replace(prefix, ''), 10) + 1;
+    return `${prefix}${num.toString().padStart(4, '0')}`;
+  }
+}
+</file>
+
+<file path="apis/ีupload/upload.controller.ts">
+// upload.controller.ts
+import {
+  Controller,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+  Param,
+  Get,
+  Req,
+  UseFilters,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UploadService } from './upload.service';
+import { diskStorage } from 'multer';
+import { v4 as uuidv4 } from 'uuid';
+import * as path from 'path';
+import { Request } from 'express';
+import { Successfully } from 'src/res/successfully';
+import {
+  AuthorizedExceptFilter,
+  BadRequestExceptFilter,
+  ForbiddenExceptionFilter,
+  InternalServerErrorExceptFilter,
+  ResultNotFoundExceptFilter,
+} from 'src/errors/filter.error';
+
+@UseFilters(
+  new ResultNotFoundExceptFilter(),
+  new BadRequestExceptFilter(),
+  new AuthorizedExceptFilter(),
+  new ForbiddenExceptionFilter(),
+  new InternalServerErrorExceptFilter(),
+)
+@Controller('upload')
+export class UploadController {
+  constructor(private readonly uploadService: UploadService) {}
+
+  @Post(':ownerType/:ownerId')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './public/uploads',
+        filename: (req, file, cb) => {
+          const ext = path.extname(file.originalname);
+          cb(null, `${uuidv4()}${ext}`);
+        },
+      }),
+    }),
+  )
+  async upload(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('ownerId') ownerId: string,
+    @Param('ownerType')
+    ownerType: 'employee' | 'customer' | 'order' | 'product',
+  ) {
+    const result = await this.uploadService.uploadFile(
+      file,
+      ownerId,
+      ownerType,
+    );
+    // return { success: true, file: result };
+    return new Successfully<any>('Upload successful', result);
+  }
+
+  @Get('owner/:ownerId')
+  async getByOwner(@Param('ownerId') ownerId: string, @Req() req: Request) {
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const files = await this.uploadService.findByOwner(ownerId, baseUrl);
+    // return { success: true, files };
+    return new Successfully<any>('Find successful', files);
+  }
+}
+</file>
+
+<file path="apis/ีupload/upload.module.ts">
+// upload.module.ts
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UploadEntity } from 'src/db/entities/upload.entity';
+import { UploadService } from './upload.service';
+import { UploadController } from './upload.controller';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([UploadEntity])],
+  providers: [UploadService],
+  controllers: [UploadController],
+  exports: [UploadService],
+})
+export class UploadModule {}
+</file>
+
+<file path="apis/ีupload/upload.service.ts">
+// upload.service.ts
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UploadEntity } from 'src/db/entities/upload.entity';
+import { createHash } from 'crypto';
+import * as fs from 'fs/promises';
+import { existsSync, unlinkSync } from 'fs';
+
+@Injectable()
+export class UploadService {
+  constructor(
+    @InjectRepository(UploadEntity)
+    private readonly uploadRepo: Repository<UploadEntity>,
+  ) {}
+
+  // async uploadFile(
+  //   file: Express.Multer.File,
+  //   ownerId: string,
+  //   ownerType: 'employee' | 'customer' | 'order' | 'product',
+  // ) {
+  //   const filePath = `public/uploads/${file.filename}`;
+
+  //   let buffer: Buffer;
+  //   try {
+  //     buffer = await fs.readFile(filePath);
+  //   } catch {
+  //     throw new Error('Uploaded file is missing from disk');
+  //   }
+
+  //   const hash = createHash('sha256').update(buffer).digest('hex');
+
+  //   const exists = await this.uploadRepo.findOneBy({ hash });
+  //   if (exists) {
+  //     if (existsSync(filePath)) unlinkSync(filePath);
+  //     return exists;
+  //   }
+
+  //   const newUpload = this.uploadRepo.create({
+  //     filename: file.originalname,
+  //     mimetype: file.mimetype,
+  //     size: file.size,
+  //     hash,
+  //     path: `uploads/${file.filename}`,
+  //     owner_id: ownerId,
+  //     owner_type: ownerType,
+  //   });
+
+  //   return await this.uploadRepo.save(newUpload);
+  // }
+
+  // async uploadFile(
+  //   file: Express.Multer.File,
+  //   ownerId: string,
+  //   ownerType: 'employee' | 'customer' | 'order' | 'product',
+  // ) {
+  //   const filePath = `public/uploads/${file.filename}`;
+
+  //   let buffer: Buffer;
+  //   try {
+  //     buffer = await fs.readFile(filePath);
+  //   } catch {
+  //     throw new Error('Uploaded file is missing from disk');
+  //   }
+
+  //   const hash = createHash('sha256').update(buffer).digest('hex');
+
+  //   const newUpload = this.uploadRepo.create({
+  //     filename: file.originalname,
+  //     mimetype: file.mimetype,
+  //     size: file.size,
+  //     hash,
+  //     path: `uploads/${file.filename}`,
+  //     owner_id: ownerId,
+  //     owner_type: ownerType,
+  //   });
+
+  //   return await this.uploadRepo.save(newUpload);
+  // }
+
+  async uploadFile(
+    file: Express.Multer.File,
+    ownerId: string,
+    ownerType: 'employee' | 'customer' | 'order' | 'product',
+  ) {
+    const filePath = `public/uploads/${file.filename}`;
+
+    let buffer: Buffer;
+    try {
+      buffer = await fs.readFile(filePath);
+    } catch {
+      throw new Error('Uploaded file is missing from disk');
+    }
+
+    const hash = createHash('sha256').update(buffer).digest('hex');
+
+    const exists = await this.uploadRepo.findOneBy({
+      hash,
+      owner_id: ownerId,
+      owner_type: ownerType,
+    });
+    if (exists) {
+      const oldFilePath = `public/${exists.path}`;
+      if (existsSync(oldFilePath)) {
+        unlinkSync(oldFilePath);
+      }
+
+      exists.path = `uploads/${file.filename}`;
+      exists.filename = file.originalname;
+      exists.mimetype = file.mimetype;
+      exists.size = file.size;
+      exists.owner_id = ownerId;
+      exists.owner_type = ownerType;
+      await this.uploadRepo.save(exists);
+      return exists;
+    }
+
+    const newUpload = this.uploadRepo.create({
+      filename: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+      hash,
+      path: `uploads/${file.filename}`,
+      owner_id: ownerId,
+      owner_type: ownerType,
+    });
+
+    return await this.uploadRepo.save(newUpload);
+  }
+
+  async findByOwner(ownerId: string, baseUrl: string) {
+    const uploads = await this.uploadRepo.find({
+      where: { owner_id: ownerId },
+    });
+    return uploads.map((file) => ({
+      ...file,
+      url: `${baseUrl}/${file.path}`,
+    }));
+  }
+}
+</file>
+
+<file path="app.controller.ts">
+import { Controller, Get, Render } from '@nestjs/common';
+import { AppService } from './app.service';
+
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get()
+  @Render('api_document')
+  getHello(): void {}
+}
+</file>
+
+<file path="app.module.ts">
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { typeOrmConfig } from './configs/typeorm.config';
+import { EmployeeModule } from './apis/employee/employee.module';
+import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './apis/auth/auth.module';
+import { CustomerModule } from './apis/customer/customer.module';
+import { ProductModule } from './apis/product/product.module';
+import { OrderModule } from './apis/order/order.module';
+import { LoggerMiddleware } from './middlewares/logger.middleware';
+import { LogViewerModule } from './apis/log-viewer/log-viewer.module';
+import { UploadModule } from './apis/ีupload/upload.module';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    TypeOrmModule.forRoot(typeOrmConfig),
+    EmployeeModule,
+    CustomerModule,
+    ProductModule,
+    AuthModule,
+    OrderModule,
+    LogViewerModule,
+    UploadModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .exclude(
+        { path: 'logs', method: RequestMethod.ALL }, // GET /logs
+        { path: 'logs/api', method: RequestMethod.ALL }, // GET /logs/api?...
+        { path: 'logs/(.*)', method: RequestMethod.ALL }, // catch all under /logs/*
+      )
+      .forRoutes('*');
+  }
+}
+</file>
+
+<file path="app.service.ts">
+import { Injectable } from '@nestjs/common';
+@Injectable()
+export class AppService {
+  getHello(): string {
+    return 'Nest application successfully started!';
+  }
+}
+</file>
+
+<file path="common/decorators/current-user.decorator.ts">
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+
+export const CurrentUser = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest();
+    return request.user; // มาจาก JwtStrategy.validate()
+  },
+);
+</file>
+
+<file path="configs/typeorm.config.ts">
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { config } from 'dotenv';
+import { CustEntity } from 'src/db/entities/cust.entity';
+import { EmployeeEntity } from 'src/db/entities/emp.entity';
+import { OrderItemEntity } from 'src/db/entities/order-item.entity';
+import { OrderEntity } from 'src/db/entities/order.entity';
+import { ProductEntity } from 'src/db/entities/product.entity';
+import { UploadEntity } from 'src/db/entities/upload.entity';
+// import { join } from 'path';
+
+config(); // Load environment variables from .env file
+
+export const typeOrmConfig: TypeOrmModuleOptions = {
+  type: 'mysql',
+  host: process.env.DB_HOST || 'localhost', // Use env variable or default
+  port: Number(process.env.DB_PORT) || 3306, // Use env variable or default
+  username: process.env.DB_USER || 'root', // Use env variable or default
+  password: process.env.DB_PASS || '', // Use env variable or default (consider security)
+  database: process.env.DB_NAME || 'yourdb', // Use env variable or default
+  // entities: [join(__dirname, '..', 'db', '**', '*.entity.{ts,js}')], // Alternative way to load entities
+  entities: [
+    EmployeeEntity,
+    CustEntity,
+    ProductEntity,
+    OrderEntity,
+    OrderItemEntity,
+    UploadEntity,
+  ], // Explicitly list entities
+  synchronize: true, // ❗ IMPORTANT: Set to false in production and use migrations!
+};
+
+// Log the configuration object to the console
+console.log('host:', process.env.DB_HOST || 'localhost ');
+console.log('port:', Number(process.env.DB_PORT) || 3306);
+console.log('username:', process.env.DB_USER || 'root');
+console.log('password:', process.env.DB_PASS || '');
+console.log('database:', process.env.DB_NAME || 'yourdb');
+// console.log('TypeORM Configuration:', typeOrmConfig);
+</file>
+
+<file path="db/entities/cust.entity.ts">
+import { UserStatus } from 'src/utils/user-status.enum';
+import { Entity, Column, PrimaryColumn, CreateDateColumn } from 'typeorm';
+
+@Entity('customers')
+export class CustEntity {
+  @PrimaryColumn()
+  id: string; // ex. CUST0001
+
+  @Column()
+  tel: string;
+
+  @Column()
+  line: string;
+
+  @Column()
+  facebook: string;
+
+  @Column()
+  fullname: string;
+
+  @Column()
+  nickname: string;
+
+  @Column()
+  address: string;
+
+  @Column({ type: 'date' })
+  birthday: Date;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.ACTIVE,
+  })
+  status: UserStatus;
+}
+</file>
+
+<file path="db/entities/emp.entity.ts">
+// src/db/entities/employee.entity.ts
+import { UserStatus } from 'src/utils/user-status.enum';
+import { Entity, Column, PrimaryColumn, CreateDateColumn } from 'typeorm';
+
+@Entity('employees')
+export class EmployeeEntity {
+  @PrimaryColumn()
+  id: string; // ex. EMP0001
+
+  @Column()
+  tel: string;
+
+  @Column({ unique: true })
+  username: string;
+
+  @Column()
+  password: string;
+
+  @Column()
+  fullname: string;
+
+  @Column({ type: 'date' })
+  birthday: Date;
+
+  @Column({ unique: true })
+  email: string;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.ACTIVE,
+  })
+  status: UserStatus;
+}
+</file>
+
+<file path="db/entities/order-item.entity.ts">
+// src/db/entities/order-item.entity.ts
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { OrderEntity } from './order.entity'; // Adjust path if needed
+import { ProductEntity } from './product.entity'; // Import your ProductEntity
+
+@Entity('order_items')
+export class OrderItemEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @ManyToOne(() => OrderEntity, (order) => order.items, { onDelete: 'CASCADE' }) // If order is deleted, delete items
+  @JoinColumn({ name: 'order_id' })
+  order: OrderEntity;
+
+  @Column()
+  order_id: string; // Foreign key column
+
+  @ManyToOne(() => ProductEntity, { eager: false, onDelete: 'RESTRICT' }) // Prevent deleting product if it's in an order item? Or use SET NULL?
+  @JoinColumn({ name: 'product_id' })
+  product: ProductEntity;
+
+  @Column()
+  product_id: string; // Foreign key column
+
+  @Column()
+  quantity: number;
+
+  /**
+   * Price per unit *at the time the order was placed*.
+   * Important to store this separately from the current product price.
+   */
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  price_per_unit: number;
+
+  /**
+   * Total price for this line item (quantity * price_per_unit).
+   * Stored for convenience and historical accuracy.
+   */
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  total_price: number;
+}
+</file>
+
+<file path="db/entities/order.entity.ts">
+// src/db/entities/order.entity.ts
+import {
+  Entity,
+  Column,
+  PrimaryColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
+import { CustEntity } from './cust.entity'; // Import Customer entity
+import { EmployeeEntity } from './emp.entity'; // Import Employee entity
+import { OrderItemEntity } from './order-item.entity'; // Import Order Item entity
+import { OrderStatus } from 'src/utils/order-status.enum';
+
+@Entity('orders')
+export class OrderEntity {
+  @PrimaryColumn()
+  id: string; // ex. ORD0001 (Consider using UUID here too: @PrimaryGeneratedColumn('uuid'))
+
+  // --- Relationships ---
+
+  @ManyToOne(() => CustEntity, { eager: false, nullable: false }) // An order must have a customer
+  @JoinColumn({ name: 'customer_id' }) // Foreign key column name in 'orders' table
+  customer: CustEntity;
+
+  @Column() // Explicitly define the column storing the FK
+  customer_id: string;
+
+  // Optional: Link to the employee who handled the order
+  @ManyToOne(() => EmployeeEntity, { nullable: true, eager: false }) // Order might not have an employee (e.g., online order)
+  @JoinColumn({ name: 'employee_id' })
+  employee?: EmployeeEntity; // Optional relationship
+
+  @Column({ nullable: true }) // FK column must also be nullable
+  employee_id?: string; // Optional FK storage
+
+  // Link to the items within this order
+  @OneToMany(() => OrderItemEntity, (item) => item.order, {
+    cascade: true, // Automatically save/update/remove items when the order changes
+    eager: true, // Load items automatically when loading an order (adjust if needed for performance)
+  })
+  items: OrderItemEntity[];
+
+  // --- Order Details ---
+
+  @Column({
+    type: 'enum',
+    enum: OrderStatus,
+    default: OrderStatus.PENDING, // Sensible default status
+  })
+  status: OrderStatus;
+
+  /**
+   * Total amount for the entire order.
+   * Should be calculated based on the sum of 'total_price' from associated OrderItemEntities.
+   * Typically calculated in your service/business logic before saving.
+   */
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  total_amount: number;
+
+  @Column({ type: 'text', nullable: true }) // Use 'text' for potentially longer notes
+  notes?: string;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+}
+</file>
+
+<file path="db/entities/product.entity.ts">
+// src/db/entities/product.entity.ts
+import { Entity, Column, PrimaryColumn, CreateDateColumn } from 'typeorm';
+
+@Entity('products')
+export class ProductEntity {
+  // <--- แก้ไขชื่อคลาสตรงนี้
+  @PrimaryColumn()
+  id: string; // ex. P0001
+
+  @Column({ unique: true })
+  name: string;
+
+  // ราคาไม่ควร unique นะครับ สินค้าคนละตัวอาจมีราคาเท่ากันได้
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 }) // ใช้ decimal สำหรับราคา
+  price: number;
+
+  @Column({ nullable: true }) // อาจจะไม่มี description ก็ได้
+  description: string;
+
+  @Column({ nullable: true }) // อาจจะไม่มี image ก็ได้
+  image: string;
+
+  @CreateDateColumn()
+  created_at: Date;
+}
+</file>
+
+<file path="db/entities/upload.entity.ts">
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  // Index,
+  UpdateDateColumn,
+} from 'typeorm';
+
+@Entity('uploads')
+// @Index(['hash'], { unique: true })
+export class UploadEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  filename: string;
+
+  @Column()
+  mimetype: string;
+
+  @Column()
+  size: number;
+
+  @Column()
+  hash: string;
+
+  @Column()
+  path: string;
+
+  @Column()
+  owner_id: string;
+
+  @Column()
+  owner_type: 'employee' | 'customer' | 'order' | 'product';
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+}
+</file>
+
+<file path="db/migrations/1743845555352-InitEmployeeSeed.ts">
+import { MigrationInterface, QueryRunner } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+
+export class InitEmployeeSeed1743845555352 implements MigrationInterface {
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    const password = await bcrypt.hash('admin1234', 10);
+
+    await queryRunner.query(`
+      INSERT INTO employees (id, username, password, fullname, tel, birthday, email, created_at)
+      VALUES (
+        'EMP0001',
+        'admin',
+        '${password}',
+        'System Admin',
+        '0000000000',
+        '1990-01-01',
+        'admin@example.com',
+        NOW()
+      )
+    `);
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DELETE FROM employees WHERE id = 'EMP0001'`);
+  }
+}
+</file>
+
+<file path="db/migrations/1743845555352-InitProductSeed.ts">
+import { MigrationInterface, QueryRunner } from 'typeorm';
+
+// ตั้งชื่อคลาสให้สื่อความหมายและตรงกับชื่อไฟล์ (อาจปรับ timestamp ได้)
+export class InitProductSeed1743845555352 implements MigrationInterface {
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    // เพิ่มข้อมูลสินค้าตัวอย่าง
+    await queryRunner.query(`
+      INSERT INTO products (id, name, price, description, image, created_at)
+      VALUES
+        (
+          'P0001',
+          'Product A',
+          199.99,
+          'Description for Product A',
+          'images/product_a.jpg',
+          NOW()
+        ),
+        (
+          'P0002',
+          'Product B',
+          25.50,
+          'Description for Product B',
+          'images/product_b.png',
+          NOW()
+        ),
+        (
+          'P0003',
+          'Product C (No Desc)',
+          500.00,
+          NULL, -- ตัวอย่างสินค้าที่ไม่มี description
+          NULL, -- ตัวอย่างสินค้าที่ไม่มี image
+          NOW()
+        )
+    `);
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    // ลบข้อมูลสินค้าที่เพิ่มเข้าไปในเมธอด up
+    await queryRunner.query(
+      `DELETE FROM products WHERE id IN ('P0001', 'P0002', 'P0003')`,
+    );
+  }
+}
+</file>
+
+<file path="errors/base.error.ts">
+import { HttpException, HttpStatus } from '@nestjs/common';
+
+export class BaseException extends HttpException {
+  constructor(message: string, statusCode: HttpStatus) {
+    super(message, statusCode);
+  }
+}
+</file>
+
+<file path="errors/exception.error.ts">
+import { BaseException } from './base.error';
+
+export class ResultNotFoundExcept extends BaseException {
+  constructor(message: string) {
+    super(message, 404);
+  }
+}
+
+export class BadRequestExcept extends BaseException {
+  constructor(message: string) {
+    super(message, 400);
+  }
+}
+
+export class AuthorizedExcept extends BaseException {
+  constructor(message: string) {
+    super(message, 401);
+  }
+}
+
+export class ForbiddenExcept extends BaseException {
+  constructor(message: string) {
+    super(message, 403);
+  }
+}
+
+export class InternalServerErrorExcept extends BaseException {
+  constructor(message: string) {
+    super(message, 500);
+  }
+}
+</file>
+
+<file path="errors/filter.error.ts">
+import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
+import { Response } from 'express';
+import {
+  ResultNotFoundExcept,
+  BadRequestExcept,
+  AuthorizedExcept,
+  ForbiddenExcept,
+  InternalServerErrorExcept,
+} from './exception.error';
+import { Failure } from 'src/res/failed.error';
+
+@Catch(ResultNotFoundExcept)
+export class ResultNotFoundExceptFilter implements ExceptionFilter {
+  catch(exception: ResultNotFoundExcept, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const status = exception.getStatus();
+    const exceptionResponse = exception.getResponse();
+    const message =
+      typeof exceptionResponse === 'string'
+        ? exceptionResponse
+        : JSON.stringify(exceptionResponse);
+    response.status(status).json(new Failure(`${message}`));
+  }
+}
+
+@Catch(BadRequestExcept)
+export class BadRequestExceptFilter implements ExceptionFilter {
+  catch(exception: BadRequestExcept, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const status = exception.getStatus();
+    const exceptionResponse = exception.getResponse();
+    const message =
+      typeof exceptionResponse === 'string'
+        ? exceptionResponse
+        : JSON.stringify(exceptionResponse);
+    response.status(status).json(new Failure(`${message}`));
+  }
+}
+
+@Catch(AuthorizedExcept)
+export class AuthorizedExceptFilter implements ExceptionFilter {
+  catch(exception: AuthorizedExcept, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const status = exception.getStatus();
+    const exceptionResponse = exception.getResponse();
+    const message =
+      typeof exceptionResponse === 'string'
+        ? exceptionResponse
+        : JSON.stringify(exceptionResponse);
+    response.status(status).json(new Failure(`${message}`));
+  }
+}
+
+@Catch(ForbiddenExcept)
+export class ForbiddenExceptionFilter implements ExceptionFilter {
+  catch(exception: ForbiddenExcept, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const status = exception.getStatus();
+    const exceptionResponse = exception.getResponse();
+    const message =
+      typeof exceptionResponse === 'string'
+        ? exceptionResponse
+        : JSON.stringify(exceptionResponse);
+    response.status(status).json(new Failure(`${message}`));
+  }
+}
+
+@Catch(InternalServerErrorExcept)
+export class InternalServerErrorExceptFilter implements ExceptionFilter {
+  catch(exception: InternalServerErrorExcept, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const status = exception.getStatus();
+    const exceptionResponse = exception.getResponse();
+    const message =
+      typeof exceptionResponse === 'string'
+        ? exceptionResponse
+        : JSON.stringify(exceptionResponse);
+    response.status(status).json(new Failure(`${message}`));
+  }
+}
+</file>
+
+<file path="main.ts">
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+import { BadRequestExcept } from './errors/exception.error';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.enableCors();
+
+  app.setBaseViewsDir(join(process.cwd(), 'views'));
+  app.setViewEngine('hbs');
+
+  app.useStaticAssets(join(process.cwd(), 'public/uploads'), {
+    prefix: '/uploads',
+  });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      exceptionFactory: (errors) => {
+        const messages = errors
+          .map((error: any) => Object.values(error.constraints).join(', '))
+          .join(' - ');
+        return new BadRequestExcept(
+          messages || 'Request body or parameter is incorrect!',
+        );
+      },
+    }),
+  );
+
+  await app.listen(process.env.PORT ?? 3000);
+}
+bootstrap();
+</file>
+
+<file path="middlewares/logger.middleware.ts">
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
+import * as fs from 'fs-extra';
+import * as path from 'path';
+
+@Injectable()
+export class LoggerMiddleware implements NestMiddleware {
+  async use(req: Request, res: Response, next: NextFunction) {
+    const acceptHeader = req.headers['accept'] || '';
+    if (acceptHeader.includes('text/html')) {
+      return next();
+    }
+    const start = Date.now();
+    const { method, originalUrl, body, query, params } = req;
+    const ip =
+      req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+    const date = new Date();
+    const dateString = date.toISOString().split('T')[0]; // YYYY-MM-DD
+    const logDir = path.join(process.cwd(), 'public/logs-server');
+    const logFile = path.join(logDir, `${dateString}.log`);
+
+    await fs.ensureDir(logDir);
+
+    const oldSend = res.send.bind(res);
+    let responseBody: any;
+
+    res.send = (data: any) => {
+      responseBody = data;
+      return oldSend(data);
+    };
+
+    res.on('finish', () => {
+      void (async () => {
+        const duration = Date.now() - start;
+
+        let parsedResponse;
+        try {
+          parsedResponse = JSON.parse(responseBody);
+        } catch (err) {
+          parsedResponse = responseBody;
+        }
+
+        const log = {
+          timestamp: new Date().toISOString(),
+          ip,
+          method,
+          url: originalUrl,
+          params,
+          query,
+          body,
+          response: parsedResponse,
+          statusCode: res.statusCode,
+          duration: `${duration}ms`,
+        };
+
+        const logEntry = `[${log.timestamp}] ${method} ${originalUrl} - ${
+          res.statusCode
+        } (${duration}ms)\n${JSON.stringify(log, null, 2)}\n\n`;
+
+        try {
+          await fs.appendFile(logFile, logEntry, 'utf8');
+        } catch (err) {
+          console.error('Error writing log:', err);
+        }
+      })();
+    });
+
+    next();
+  }
+}
+</file>
+
+<file path="res/failed.error.ts">
+export class Failure {
+  success: boolean;
+  message: string;
+  timestamp: string;
+
+  constructor(message: string) {
+    this.success = false;
+    this.message = message;
+    this.timestamp = new Date().toISOString();
+  }
+}
+</file>
+
+<file path="res/successfully.ts">
+export class Successfully<T> {
+  success: boolean;
+  message: string;
+  data?: T;
+  offsets?: number[];
+
+  constructor(message: string, data?: T, offsets?: number[]) {
+    this.success = true;
+    this.message = message;
+    this.data = data;
+    this.offsets = offsets;
+  }
+}
+</file>
+
+<file path="types/cust.interface.ts">
+import { UserStatus } from 'src/utils/user-status.enum';
+
+export interface CustBase {
+  id: string;
+  tel: string;
+  line: string;
+  facebook: string;
+  fullname: string;
+  nickname: string;
+  address: string;
+  birthday: Date;
+  created_at: Date;
+  status: UserStatus;
+}
+
+interface Pagination {
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+export interface CustomerListResponse {
+  items: CustBase[];
+  pagination: Pagination;
+}
+</file>
+
+<file path="types/employee.interface.ts">
+import { UserStatus } from 'src/utils/user-status.enum';
+
+export interface EmployeeBase {
+  id: string;
+  tel: string;
+  username: string;
+  password?: string;
+  fullname: string;
+  birthday: Date;
+  email: string;
+  created_at: Date;
+  status: UserStatus;
+}
+
+interface Pagination {
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+export interface EmployeeSearchResponse {
+  items: EmployeeBase[];
+  pagination: Pagination;
+}
+</file>
+
+<file path="types/product.interface.ts">
+export interface ProductBase {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  image: string;
+  created_at: Date;
+}
+</file>
+
+<file path="utils/order-status.enum.ts">
+// src/db/entities/order-status.enum.ts
+export enum OrderStatus {
+  PENDING = 'pending', // Waiting for confirmation/payment
+  PROCESSING = 'processing', // Order is being prepared
+  SHIPPED = 'shipped', // Order has been shipped
+  DELIVERED = 'delivered', // Order has been delivered
+  COMPLETED = 'completed', // Order is fully completed (optional alternative to delivered)
+  CANCELLED = 'cancelled', // Order was cancelled
+  REFUNDED = 'refunded', // Order was refunded
+  FAILED = 'failed', // Order failed (e.g., payment issue)
+}
+</file>
+
+<file path="utils/user-status.enum.ts">
+export enum UserStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+}
+</file>
+
+</files>

@@ -10,6 +10,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { CreatCustomerDto } from 'src/apis/customer/dtos/customer.dto';
 import { OrderStatus } from 'src/utils/order-status.enum';
 
 export class CreateOrderItemDto {
@@ -46,4 +47,23 @@ export class UpdateOrderStatusDto {
   @IsNotEmpty()
   @IsEnum(OrderStatus)
   status: OrderStatus;
+}
+
+export class CreateOrderWithCustomerDto {
+  @ValidateNested()
+  @Type(() => CreatCustomerDto)
+  customer: CreatCustomerDto;
+
+  @IsOptional()
+  @IsString()
+  employeeId?: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderItemDto)
+  items: CreateOrderItemDto[];
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
 }

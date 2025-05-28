@@ -1,3 +1,5 @@
+import { UserStatus } from 'src/utils/user-status.enum';
+
 export interface CustBase {
   id: string;
   tel: string;
@@ -8,6 +10,7 @@ export interface CustBase {
   address: string;
   birthday: Date;
   created_at: Date;
+  status: UserStatus;
 }
 
 interface Pagination {

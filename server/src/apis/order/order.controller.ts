@@ -10,12 +10,31 @@ import {
   HttpStatus,
   Query,
   Put,
+  UseFilters,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { CreateOrderDto, UpdateOrderStatusDto } from './dto/order.dto';
+import {
+  CreateOrderDto,
+  CreateOrderWithCustomerDto,
+  UpdateOrderStatusDto,
+} from './dto/order.dto';
 import { Successfully } from 'src/res/successfully';
 import { OrderStatus } from 'src/utils/order-status.enum';
+import {
+  AuthorizedExceptFilter,
+  BadRequestExceptFilter,
+  ForbiddenExceptionFilter,
+  InternalServerErrorExceptFilter,
+  ResultNotFoundExceptFilter,
+} from 'src/errors/filter.error';
 
+@UseFilters(
+  new ResultNotFoundExceptFilter(),
+  new BadRequestExceptFilter(),
+  new AuthorizedExceptFilter(),
+  new ForbiddenExceptionFilter(),
+  new InternalServerErrorExceptFilter(),
+)
 @Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
@@ -110,5 +129,17 @@ export class OrderController {
         totalPages: totalPages,
       },
     });
+  }
+
+  @Post('register-with-customer')
+  @HttpCode(HttpStatus.CREATED)
+  async createWithCustomer(
+    @Body() dto: CreateOrderWithCustomerDto,
+  ): Promise<any> {
+    const result = await this.orderService.createWithCustomer(dto);
+    return new Successfully<any>(
+      'Register order and customer successfully.',
+      result,
+    );
   }
 }

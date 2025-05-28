@@ -9,12 +9,17 @@ import { ProductEntity } from 'src/db/entities/product.entity';
 import { OrderStatus } from 'src/utils/order-status.enum';
 import { Repository, DataSource } from 'typeorm';
 
-import { CreateOrderDto, UpdateOrderStatusDto } from './dto/order.dto';
+import {
+  CreateOrderDto,
+  CreateOrderWithCustomerDto,
+  UpdateOrderStatusDto,
+} from './dto/order.dto';
 import {
   BadRequestExcept,
   InternalServerErrorExcept,
   ResultNotFoundExcept,
 } from 'src/errors/exception.error';
+import { CustomerService } from '../customer/customer.service';
 
 @Injectable()
 export class OrderService {
@@ -22,7 +27,36 @@ export class OrderService {
     @InjectRepository(OrderEntity)
     private readonly orderRepository: Repository<OrderEntity>,
     private readonly dataSource: DataSource, // Inject DataSource for transactions
+    private readonly customerService: CustomerService,
   ) {}
+
+  async createWithCustomer(
+    dto: CreateOrderWithCustomerDto,
+  ): Promise<OrderEntity> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const createdCustomer = await this.customerService.register(dto.customer);
+
+      const createOrderDto: CreateOrderDto = {
+        customerId: createdCustomer.id,
+        employeeId: dto.employeeId,
+        items: dto.items,
+        notes: dto.notes,
+      };
+
+      const order = await this.create(createOrderDto);
+      await queryRunner.commitTransaction();
+      return order;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
 
   async create(createOrderDto: CreateOrderDto): Promise<OrderEntity> {
     const { customerId, employeeId, items, notes } = createOrderDto;

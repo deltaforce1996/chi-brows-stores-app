@@ -1,3 +1,4 @@
+import { UserStatus } from 'src/utils/user-status.enum';
 import { Entity, Column, PrimaryColumn, CreateDateColumn } from 'typeorm';
 
 @Entity('customers')
@@ -28,4 +29,11 @@ export class CustEntity {
 
   @CreateDateColumn()
   created_at: Date;
+
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.ACTIVE,
+  })
+  status: UserStatus;
 }

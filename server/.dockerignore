@@ -7,4 +7,5 @@ Dockerfile
 docker-compose.yml
 *.log
 .env
+public
 # Add any other files/folders you don't need in the image

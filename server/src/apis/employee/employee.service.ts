@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmployeeEntity } from 'src/db/entities/emp.entity';
 import { EmployeeBase } from 'src/types/employee.interface';
-import { CreateEmployeeDto } from './dtos/employee.dto';
+import { CreateEmployeeDto, UpdateEmployeeDto } from './dtos/employee.dto';
 import * as bcrypt from 'bcrypt';
 import { ResultNotFoundExcept } from 'src/errors/exception.error';
 import { Repository } from 'typeorm';
+import { UserStatus } from 'src/utils/user-status.enum';
 
 @Injectable()
 export class EmployeeService {
@@ -31,6 +32,7 @@ export class EmployeeService {
       id: nextId,
       password: hashedPassword,
       birthday: new Date(dto.birthday),
+      status: UserStatus.ACTIVE,
     });
 
     const saved = await this.employeeRepo.save(newEmployee);
@@ -56,7 +58,8 @@ export class EmployeeService {
       queryBuilder
         .where('emp.username LIKE :search', { search: `%${query}%` })
         .orWhere('emp.email LIKE :search', { search: `%${query}%` })
-        .orWhere('emp.fullname LIKE :search', { search: `%${query}%` });
+        .orWhere('emp.fullname LIKE :search', { search: `%${query}%` })
+        .orWhere('emp.tel LIKE :search', { search: `%${query}%` });
     }
 
     queryBuilder
@@ -92,5 +95,20 @@ export class EmployeeService {
     if (!lastId) return 'EMP0001';
     const num = parseInt(lastId.replace('EMP', ''), 10) + 1;
     return `EMP${num.toString().padStart(4, '0')}`;
+  }
+
+  async update(id: string, dto: UpdateEmployeeDto): Promise<EmployeeBase> {
+    const emp = await this.employeeRepo.findOneBy({ id });
+    if (!emp) throw new ResultNotFoundExcept('Employee not found.');
+
+    const updated = Object.assign(emp, {
+      ...dto,
+      birthday: dto.birthday ? new Date(dto.birthday) : emp.birthday,
+    });
+
+    const saved = await this.employeeRepo.save(updated);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...rest } = saved;
+    return rest;
   }
 }

@@ -1,13 +1,14 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { CustEntity } from 'src/db/entities/cust.entity';
 import { Repository } from 'typeorm';
-import { CreatCustomerDto } from './dtos/customer.dto';
+import { CreatCustomerDto, UpdateCustomerDto } from './dtos/customer.dto';
 import { CustBase } from 'src/types/cust.interface';
 import {
   BadRequestExcept,
   ResultNotFoundExcept,
 } from 'src/errors/exception.error';
 import { Injectable } from '@nestjs/common';
+import { UserStatus } from 'src/utils/user-status.enum';
 
 @Injectable()
 export class CustomerService {
@@ -46,6 +47,7 @@ export class CustomerService {
       ...dto,
       id: nextId,
       birthday: new Date(dto.birthday),
+      status: UserStatus.ACTIVE,
     });
 
     const saved = await this.custRepo.save(newCust);
@@ -68,7 +70,12 @@ export class CustomerService {
     if (query) {
       queryBuilder
         .where('cust.nickname ILIKE :search', { search: `%${query}%` })
-        .orWhere('cust.fullname ILIKE :search', { search: `%${query}%` });
+        .orWhere('cust.fullname ILIKE :search', { search: `%${query}%` })
+        .orWhere('emp.tel ILIKE :search', { search: `%${query}%` })
+        .orWhere('emp.line ILIKE :search', { search: `%${query}%` })
+        .orWhere('emp.facebook ILIKE :search', { search: `%${query}%` })
+        .orWhere('emp.email ILIKE :search', { search: `%${query}%` })
+        .orWhere('emp.id LIKE :search', { search: `%${query}%` });
     }
 
     queryBuilder
@@ -89,5 +96,17 @@ export class CustomerService {
     if (!lastId) return 'CUST0001';
     const num = parseInt(lastId.replace('CUST', ''), 10) + 1;
     return `CUST${num.toString().padStart(4, '0')}`;
+  }
+
+  async update(id: string, dto: UpdateCustomerDto): Promise<CustBase> {
+    const cust = await this.custRepo.findOneBy({ id });
+    if (!cust) throw new ResultNotFoundExcept('Customer not found.');
+
+    const updated = Object.assign(cust, {
+      ...dto,
+      birthday: dto.birthday ? new Date(dto.birthday) : cust.birthday,
+    });
+
+    return await this.custRepo.save(updated);
   }
 }

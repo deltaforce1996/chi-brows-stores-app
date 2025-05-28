@@ -7,6 +7,8 @@ import { EmployeeEntity } from 'src/db/entities/emp.entity';
 import { ProductEntity } from 'src/db/entities/product.entity';
 import { OrderItemEntity } from 'src/db/entities/order-item.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CustomerModule } from '../customer/customer.module';
+import { CustomerService } from '../customer/customer.service';
 
 @Module({
   imports: [
@@ -17,8 +19,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       ProductEntity,
       OrderItemEntity,
     ]),
+    CustomerModule,
   ],
   controllers: [OrderController],
-  providers: [OrderService],
+  providers: [OrderService, CustomerService],
 })
 export class OrderModule {}

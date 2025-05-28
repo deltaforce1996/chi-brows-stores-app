@@ -16,6 +16,7 @@ import { ProductModule } from './apis/product/product.module';
 import { OrderModule } from './apis/order/order.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { LogViewerModule } from './apis/log-viewer/log-viewer.module';
+import { UploadModule } from './apis/ีupload/upload.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { LogViewerModule } from './apis/log-viewer/log-viewer.module';
     AuthModule,
     OrderModule,
     LogViewerModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,4 +1,5 @@
 // src/db/entities/employee.entity.ts
+import { UserStatus } from 'src/utils/user-status.enum';
 import { Entity, Column, PrimaryColumn, CreateDateColumn } from 'typeorm';
 
 @Entity('employees')
@@ -26,4 +27,11 @@ export class EmployeeEntity {
 
   @CreateDateColumn()
   created_at: Date;
+
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.ACTIVE,
+  })
+  status: UserStatus;
 }

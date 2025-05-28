@@ -5,6 +5,7 @@ import { EmployeeEntity } from 'src/db/entities/emp.entity';
 import { OrderItemEntity } from 'src/db/entities/order-item.entity';
 import { OrderEntity } from 'src/db/entities/order.entity';
 import { ProductEntity } from 'src/db/entities/product.entity';
+import { UploadEntity } from 'src/db/entities/upload.entity';
 // import { join } from 'path';
 
 config(); // Load environment variables from .env file
@@ -23,6 +24,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
     ProductEntity,
     OrderEntity,
     OrderItemEntity,
+    UploadEntity,
   ], // Explicitly list entities
   synchronize: true, // ❗ IMPORTANT: Set to false in production and use migrations!
 };
