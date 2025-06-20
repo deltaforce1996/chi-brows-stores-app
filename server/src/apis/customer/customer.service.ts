@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { CustEntity } from 'src/db/entities/cust.entity';
-import { Brackets, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreatCustomerDto, UpdateCustomerDto } from './dtos/customer.dto';
 import { CustBase } from 'src/types/cust.interface';
 import {
@@ -68,19 +68,13 @@ export class CustomerService {
     const queryBuilder = this.custRepo.createQueryBuilder('cust');
 
     if (query && query.trim() !== '') {
-      queryBuilder.andWhere(
-        new Brackets((qb) => {
-          qb.where('cust.nickname ILIKE :search', { search: `%${query}%` })
-            .orWhere('cust.fullname ILIKE :search', { search: `%${query}%` })
-            .orWhere('cust.tel ILIKE :search', { search: `%${query}%` })
-            .orWhere('cust.line ILIKE :search', { search: `%${query}%` })
-            .orWhere('cust.facebook ILIKE :search', { search: `%${query}%` })
-            .orWhere('cust.email ILIKE :search', { search: `%${query}%` })
-            .orWhere('CAST(cust.id AS TEXT) LIKE :search', {
-              search: `%${query}%`,
-            });
-        }),
-      );
+      queryBuilder
+        .where('cust.nickname LIKE :search', { search: `%${query}%` })
+        .orWhere('cust.fullname LIKE :search', { search: `%${query}%` })
+        .orWhere('cust.tel LIKE :search', { search: `%${query}%` })
+        .orWhere('cust.line LIKE :search', { search: `%${query}%` })
+        .orWhere('cust.facebook LIKE :search', { search: `%${query}%` })
+        .orWhere('cust.id LIKE :search', { search: `%${query}%` });
     }
 
     queryBuilder

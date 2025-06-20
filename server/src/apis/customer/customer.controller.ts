@@ -42,7 +42,7 @@ export class CustomerController {
   // @UseGuards(JwtAuthGuard)
   @Get('search')
   async searchCustomer(
-    @Query('query') query: string,
+    @Query('q') query: string,
     @Query('page') page = 1,
     @Query('pageSize') pageSize = 10,
   ): Promise<Successfully<CustomerListResponse>> {
