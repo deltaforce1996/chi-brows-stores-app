@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { CustEntity } from 'src/db/entities/cust.entity';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { CreatCustomerDto, UpdateCustomerDto } from './dtos/customer.dto';
 import { CustBase } from 'src/types/cust.interface';
 import {
@@ -36,8 +36,8 @@ export class CustomerService {
 
     // หา id ล่าสุด
     const last = await this.custRepo
-      .createQueryBuilder('emp')
-      .orderBy('emp.id', 'DESC')
+      .createQueryBuilder('cust')
+      .orderBy('cust.id', 'DESC')
       .limit(1)
       .getOne();
 
@@ -67,15 +67,20 @@ export class CustomerService {
   ): Promise<{ data: CustBase[]; total: number }> {
     const queryBuilder = this.custRepo.createQueryBuilder('cust');
 
-    if (query) {
-      queryBuilder
-        .where('cust.nickname ILIKE :search', { search: `%${query}%` })
-        .orWhere('cust.fullname ILIKE :search', { search: `%${query}%` })
-        .orWhere('emp.tel ILIKE :search', { search: `%${query}%` })
-        .orWhere('emp.line ILIKE :search', { search: `%${query}%` })
-        .orWhere('emp.facebook ILIKE :search', { search: `%${query}%` })
-        .orWhere('emp.email ILIKE :search', { search: `%${query}%` })
-        .orWhere('emp.id LIKE :search', { search: `%${query}%` });
+    if (query && query.trim() !== '') {
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('cust.nickname ILIKE :search', { search: `%${query}%` })
+            .orWhere('cust.fullname ILIKE :search', { search: `%${query}%` })
+            .orWhere('cust.tel ILIKE :search', { search: `%${query}%` })
+            .orWhere('cust.line ILIKE :search', { search: `%${query}%` })
+            .orWhere('cust.facebook ILIKE :search', { search: `%${query}%` })
+            .orWhere('cust.email ILIKE :search', { search: `%${query}%` })
+            .orWhere('CAST(cust.id AS TEXT) LIKE :search', {
+              search: `%${query}%`,
+            });
+        }),
+      );
     }
 
     queryBuilder
@@ -84,10 +89,6 @@ export class CustomerService {
       .take(pageSize);
 
     const [data, total] = await queryBuilder.getManyAndCount();
-
-    if (data.length === 0) {
-      throw new ResultNotFoundExcept('Cust not found.');
-    }
 
     return { data, total };
   }

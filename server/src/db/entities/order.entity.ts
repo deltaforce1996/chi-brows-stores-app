@@ -48,7 +48,7 @@ export class OrderEntity {
   @Column({
     type: 'enum',
     enum: OrderStatus,
-    default: OrderStatus.PENDING, // Sensible default status
+    default: OrderStatus.COMPLETED, // Sensible default status
   })
   status: OrderStatus;
 

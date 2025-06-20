@@ -224,17 +224,18 @@ export class OrderService {
     queryBuilder
       .leftJoinAndSelect('order.customer', 'customer')
       .leftJoinAndSelect('order.employee', 'employee')
-      .leftJoinAndSelect('order.items', 'items');
+      .leftJoinAndSelect('order.items', 'items')
+      .leftJoinAndSelect('items.product', 'product');
 
     if (filters.orderId) {
-      queryBuilder.andWhere('order.id LIKE :orderId', {
-        orderId: `%${filters.orderId}%`,
+      queryBuilder.andWhere('order.id = :orderId', {
+        orderId: filters.orderId,
       });
     }
 
     if (filters.customerId) {
-      queryBuilder.andWhere('order.customer_id LIKE :customerId', {
-        customerId: `%${filters.customerId}%`,
+      queryBuilder.andWhere('order.customer_id = :customerId', {
+        customerId: filters.customerId,
       });
     }
 
@@ -246,8 +247,8 @@ export class OrderService {
     }
 
     if (filters.employeeId) {
-      queryBuilder.andWhere('order.employee_id LIKE :employeeId', {
-        employeeId: `%${filters.employeeId}%`,
+      queryBuilder.andWhere('order.employee_id = :employeeId', {
+        employeeId: filters.employeeId,
       });
     }
 
