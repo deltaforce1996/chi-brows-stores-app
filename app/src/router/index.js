@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import DefaultLayout from '../layouts/DefaultLayout.vue'
 import AuthLayout from '../layouts/AuthLayout.vue'
+import authMiddleware from '../middlewares/auth'
 
 // Views
 import CustomerInfomation from '../views/CustomerInfomation.vue'
@@ -53,5 +54,7 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
 })
+
+router.beforeEach(authMiddleware)
 
 export default router

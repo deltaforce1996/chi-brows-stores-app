@@ -1,34 +1,22 @@
 <template>
-  <v-app>
-    <v-main>
-      <router-view />
-    </v-main>
-  </v-app>
+  <router-view />
+  <CustomSnackbar ref="snackbarRef" />
 </template>
 
 <script setup>
-import { onMounted } from "vue";
-import { login } from "@/services/authService";
+import { ref, onMounted } from 'vue'
+import CustomSnackbar from './components/controls/CustomSnackbar.vue'
+import { registerSnackbar } from './lib/snackbar.js'
 
-// ไม่ต้อง import อะไร เพราะเราใช้ <router-view /> แล้ว
-async function handleLogin() {
-  try {
-    const user = await login({
-      username: "admin",
-      password: "admin1234",
-    });
-    console.log("Welcome", user);
-  } catch (err) {
-    alert("Login failed ", err);
-  }
-}
+const snackbarRef = ref(null)
+
 onMounted(() => {
-  setTimeout(async () => {
-    await handleLogin();
-  }, 5000);
-});
+  if (snackbarRef.value) {
+    registerSnackbar(snackbarRef.value)
+  }
+})
 </script>
 
 <style>
-/* คุณสามารถเพิ่ม Global CSS ได้ตรงนี้ถ้าต้องการ */
+/* Global CSS here if needed */
 </style>

@@ -42,17 +42,19 @@
   
   <script setup>
   import { useRouter } from 'vue-router'
+  import { useUserStore } from '@/stores/user'
   
   const router = useRouter()
-  
+  const userStore = useUserStore()
+
   const menuItems = [
     { title: 'หน้าแรก', icon: 'mdi-home', to: '/' },
     { title: 'ข้อมูลลูกค้า', icon: 'mdi-account-multiple', to: '/FillinCustomer' }
   ]
   
   function logout() {
-    alert('ออกจากระบบเรียบร้อย')
-    router.push('/login')
+    userStore.logout()
+    router.push('/auth/login')
   }
   </script>
   

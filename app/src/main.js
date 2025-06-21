@@ -8,7 +8,6 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import '@mdi/font/css/materialdesignicons.css'
 import router from './router'
-import { createRouter, createWebHistory } from 'vue-router'
 
 
 const vuetify = createVuetify({

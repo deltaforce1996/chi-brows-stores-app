@@ -52,9 +52,11 @@
               เข้าสู่ระบบ
             </v-btn>
 
+            <div v-if="error" class="text-red text-center mt-2">{{ error }}</div>
+
             <div class="text-center mt-4">
               <span>ยังไม่มีบัญชี Chi Brows ?</span>
-              <a href="#" class="text-red"> ลงทะเบียน</a>
+              <a href="/auth/register" class="text-red"> ลงทะเบียน</a>
             </div>
           </v-form>
         </v-card>
@@ -65,15 +67,32 @@
 
 <script setup>
 import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { login } from "@/services/authService";
+import { useUserStore } from "@/stores/user";
+import {  showSuccess, showErr } from "@/lib/snackbar.js";
 
 const username = ref("");
 const password = ref("");
 const rememberMe = ref(false);
+const error = ref("");
+const router = useRouter();
+const userStore = useUserStore();
 
 function handleLogin() {
-  alert(
-    `Username: ${username.value}\nPassword: ${password.value}\nRemember Me: ${rememberMe.value}`
-  );
+  error.value = "";
+  login({ username: username.value, password: password.value })
+    .then(({ access_token, user }) => {
+      userStore.setUser(user, access_token);
+      // Optionally, handle rememberMe logic here
+      showSuccess("เข้าสู่ระบบสำเร็จ");
+      router.push({ path: "/" }); // Change to your home route name
+    })
+    .catch((err) => {
+      error.value =  "เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบข้อมูลอีกครั้ง";
+      showErr("เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบข้อมูลอีกครั้ง");
+      console.log('err', err);
+    });
 }
 </script>
 
