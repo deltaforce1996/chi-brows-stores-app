@@ -8,6 +8,7 @@ import { OrderEntity } from 'src/db/entities/order.entity';
 import { ProductEntity } from 'src/db/entities/product.entity';
 import { OrderStatus } from 'src/utils/order-status.enum';
 import { Repository, DataSource } from 'typeorm';
+import { UploadEntity } from 'src/db/entities/upload.entity';
 
 import {
   CreateOrderDto,
@@ -172,6 +173,18 @@ export class OrderService {
       skip: (page - 1) * pageSize,
       take: pageSize,
     });
+    if (data.length === 0) return { data, total };
+    // ดึง uploads ทีเดียว
+    const orderIds = data.map((order) => order.id);
+    const uploads = await this.dataSource
+      .getRepository(UploadEntity)
+      .createQueryBuilder('upload')
+      .where('upload.owner_type = :ownerType', { ownerType: 'order' })
+      .andWhere('upload.owner_id IN (:...orderIds)', { orderIds })
+      .getMany();
+    for (const order of data) {
+      order.uploads = uploads.filter((u) => u.owner_id === order.id);
+    }
 
     return { data, total };
   }
@@ -179,11 +192,20 @@ export class OrderService {
   async findOne(id: string): Promise<OrderEntity> {
     const order = await this.orderRepository.findOne({
       where: { id },
-      relations: ['customer', 'employee', 'items', 'items.product'], // Eager load relations
+      relations: ['customer', 'employee', 'items', 'items.product'],
     });
     if (!order) {
       throw new ResultNotFoundExcept(`Order with ID "${id}" not found`);
     }
+    // ดึง uploads ของ order นี้
+    const uploads = await this.dataSource
+      .getRepository(UploadEntity)
+      .createQueryBuilder('upload')
+      .where('upload.owner_type = :ownerType', { ownerType: 'order' })
+      .andWhere('upload.owner_id = :orderId', { orderId: order.id })
+      .getMany();
+    order.uploads = uploads;
+
     return order;
   }
 
@@ -264,6 +286,18 @@ export class OrderService {
       .take(pageSize);
 
     const [data, total] = await queryBuilder.getManyAndCount();
+    if (data.length === 0) return { data, total };
+    // ดึง uploads ทีเดียว
+    const orderIds = data.map((order) => order.id);
+    const uploads = await this.dataSource
+      .getRepository(UploadEntity)
+      .createQueryBuilder('upload')
+      .where('upload.owner_type = :ownerType', { ownerType: 'order' })
+      .andWhere('upload.owner_id IN (:...orderIds)', { orderIds })
+      .getMany();
+    for (const order of data) {
+      order.uploads = uploads.filter((u) => u.owner_id === order.id);
+    }
 
     return { data, total };
   }

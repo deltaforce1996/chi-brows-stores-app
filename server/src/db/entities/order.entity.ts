@@ -13,6 +13,7 @@ import { CustEntity } from './cust.entity'; // Import Customer entity
 import { EmployeeEntity } from './emp.entity'; // Import Employee entity
 import { OrderItemEntity } from './order-item.entity'; // Import Order Item entity
 import { OrderStatus } from 'src/utils/order-status.enum';
+import { UploadEntity } from './upload.entity'; // Add this import for soft relation
 
 @Entity('orders')
 export class OrderEntity {
@@ -68,4 +69,10 @@ export class OrderEntity {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  /**
+   * Soft relation: List of uploads related to this order (owner_id = order.id, owner_type = 'order')
+   * This is not a real DB relation, but can be populated in service logic.
+   */
+  uploads?: UploadEntity[];
 }
