@@ -1,10 +1,20 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/product.dto'; // <-- แก้ไข path ของ DTO ให้ถูกต้อง
 import { ProductBase } from 'src/types/product.interface';
 import { Successfully } from 'src/res/successfully';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('product') // กำหนด prefix path เป็น /product
+@UseGuards(JwtAuthGuard)
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 

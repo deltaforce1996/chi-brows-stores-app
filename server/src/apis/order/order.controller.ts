@@ -12,6 +12,7 @@ import {
   Put,
   UseFilters,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import {
@@ -29,6 +30,7 @@ import {
   ResultNotFoundExceptFilter,
 } from 'src/errors/filter.error';
 import { Request } from 'express';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @UseFilters(
   new ResultNotFoundExceptFilter(),
@@ -38,6 +40,7 @@ import { Request } from 'express';
   new InternalServerErrorExceptFilter(),
 )
 @Controller('orders')
+@UseGuards(JwtAuthGuard)
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 

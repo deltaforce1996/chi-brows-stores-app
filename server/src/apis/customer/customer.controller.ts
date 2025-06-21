@@ -7,6 +7,7 @@ import {
   Put,
   Query,
   UseFilters,
+  UseGuards,
   // UseGuards,
 } from '@nestjs/common';
 import {
@@ -20,6 +21,7 @@ import { CustomerService } from './customer.service';
 import { CreatCustomerDto, UpdateCustomerDto } from './dtos/customer.dto';
 import { Successfully } from 'src/res/successfully';
 import { CustBase, CustomerListResponse } from 'src/types/cust.interface';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 // import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('customer')
@@ -30,6 +32,7 @@ import { CustBase, CustomerListResponse } from 'src/types/cust.interface';
   new ForbiddenExceptionFilter(),
   new InternalServerErrorExceptFilter(),
 )
+@UseGuards(JwtAuthGuard)
 export class CustomerController {
   constructor(private readonly custService: CustomerService) {}
 

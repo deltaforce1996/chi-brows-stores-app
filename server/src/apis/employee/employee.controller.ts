@@ -7,11 +7,12 @@ import {
   Put,
   Query,
   UseFilters,
+  UseGuards,
   // UseGuards,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto, UpdateEmployeeDto } from './dtos/employee.dto';
-// import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import {
   AuthorizedExceptFilter,
@@ -34,6 +35,7 @@ import {
   new ForbiddenExceptionFilter(),
   new InternalServerErrorExceptFilter(),
 )
+@UseGuards(JwtAuthGuard)
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 

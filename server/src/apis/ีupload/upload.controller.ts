@@ -8,6 +8,7 @@ import {
   Get,
   Req,
   UseFilters,
+  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
@@ -23,6 +24,7 @@ import {
   InternalServerErrorExceptFilter,
   ResultNotFoundExceptFilter,
 } from 'src/errors/filter.error';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @UseFilters(
   new ResultNotFoundExceptFilter(),
@@ -32,6 +34,7 @@ import {
   new InternalServerErrorExceptFilter(),
 )
 @Controller('upload')
+@UseGuards(JwtAuthGuard)
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
