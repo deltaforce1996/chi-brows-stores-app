@@ -64,6 +64,9 @@ export class OrderEntity {
   @Column({ type: 'text', nullable: true }) // Use 'text' for potentially longer notes
   notes?: string;
 
+  @Column({ type: 'date', nullable: true })
+  date?: Date;
+
   @CreateDateColumn()
   created_at: Date;
 

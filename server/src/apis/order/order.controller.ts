@@ -11,6 +11,7 @@ import {
   Query,
   Put,
   UseFilters,
+  Req,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import {
@@ -27,6 +28,7 @@ import {
   InternalServerErrorExceptFilter,
   ResultNotFoundExceptFilter,
 } from 'src/errors/filter.error';
+import { Request } from 'express';
 
 @UseFilters(
   new ResultNotFoundExceptFilter(),
@@ -41,8 +43,12 @@ export class OrderController {
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createOrderDto: CreateOrderDto): Promise<any> {
-    const result = await this.orderService.create(createOrderDto);
+  async create(
+    @Body() createOrderDto: CreateOrderDto,
+    @Req() req: Request,
+  ): Promise<any> {
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const result = await this.orderService.create(createOrderDto, baseUrl);
     return new Successfully<any>('Register successfully.', result);
   }
 
@@ -50,10 +56,13 @@ export class OrderController {
   async findAll(
     @Query('page') page = 1,
     @Query('pageSize') pageSize = 10,
+    @Req() req: Request,
   ): Promise<any> {
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
     const { data, total } = await this.orderService.findAll(
       Number(page),
       Number(pageSize),
+      baseUrl,
     );
 
     const totalPages = Math.ceil(total / Number(pageSize));
@@ -70,8 +79,9 @@ export class OrderController {
   }
 
   @Get('find/:id')
-  async findOne(@Param('id') id: string): Promise<any> {
-    const result = await this.orderService.findOne(id);
+  async findOne(@Param('id') id: string, @Req() req: Request): Promise<any> {
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const result = await this.orderService.findOne(id, baseUrl);
     return new Successfully<any>('Get successfully.', result);
   }
 
@@ -79,10 +89,13 @@ export class OrderController {
   async updateStatus(
     @Param('id') id: string,
     @Body() updateOrderStatusDto: UpdateOrderStatusDto,
+    @Req() req: Request,
   ): Promise<any> {
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
     const result = await this.orderService.updateStatus(
       id,
       updateOrderStatusDto,
+      baseUrl,
     );
     return new Successfully<any>('Update successfully.', result);
   }
@@ -96,6 +109,7 @@ export class OrderController {
 
   @Get('search')
   async searchOrders(
+    @Req() req: Request,
     @Query('orderId') orderId?: string,
     @Query('customerId') customerId?: string,
     @Query('customerName') customerName?: string,
@@ -104,6 +118,7 @@ export class OrderController {
     @Query('page') page = 1,
     @Query('pageSize') pageSize = 10,
   ) {
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
     const filters = {
       orderId,
       customerId,
@@ -116,6 +131,7 @@ export class OrderController {
       filters,
       Number(page),
       Number(pageSize),
+      baseUrl,
     );
 
     const totalPages = Math.ceil(total / Number(pageSize));
@@ -135,8 +151,10 @@ export class OrderController {
   @HttpCode(HttpStatus.CREATED)
   async createWithCustomer(
     @Body() dto: CreateOrderWithCustomerDto,
+    @Req() req: Request,
   ): Promise<any> {
-    const result = await this.orderService.createWithCustomer(dto);
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const result = await this.orderService.createWithCustomer(dto, baseUrl);
     return new Successfully<any>(
       'Register order and customer successfully.',
       result,

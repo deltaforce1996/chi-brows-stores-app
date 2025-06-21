@@ -8,6 +8,7 @@ import {
   IsOptional,
   IsPositive,
   IsString,
+  IsDate,
   ValidateNested,
 } from 'class-validator';
 import { CreatCustomerDto } from 'src/apis/customer/dtos/customer.dto';
@@ -41,6 +42,15 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @IsDate()
+  @IsNotEmpty()
+  @Type(() => Date)
+  date: Date;
+
+  @IsNumber()
+  @IsPositive()
+  price: number;
 }
 
 export class UpdateOrderStatusDto {
@@ -66,4 +76,13 @@ export class CreateOrderWithCustomerDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @IsDate()
+  @IsNotEmpty()
+  @Type(() => Date)
+  date: Date;
+
+  @IsNumber()
+  @IsPositive()
+  price: number;
 }

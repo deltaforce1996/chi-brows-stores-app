@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "1822d590-15c6-4117-af2e-af1ac116b786",
 		"name": "chi-brows-stores-app",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "3694585"
 	},
 	"item": [
@@ -14,7 +14,12 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "{{BASE_URL}}"
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
 					},
 					"response": []
 				},
@@ -23,9 +28,13 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{BARER_TOKEN}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BARER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "GET",
 						"header": [],
@@ -53,13 +62,27 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{BARER_TOKEN}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BARER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "GET",
 						"header": [],
-						"url": "{{BASE_URL}}/employees/find/EMP0001"
+						"url": {
+							"raw": "{{BASE_URL}}/employees/find/EMP0001",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"employees",
+								"find",
+								"EMP0001"
+							]
+						}
 					},
 					"response": []
 				},
@@ -68,13 +91,26 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{BARER_TOKEN}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BARER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "GET",
 						"header": [],
-						"url": "{{BASE_URL}}/employees/me"
+						"url": {
+							"raw": "{{BASE_URL}}/employees/me",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"employees",
+								"me"
+							]
+						}
 					},
 					"response": []
 				},
@@ -92,7 +128,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/auth/login"
+						"url": {
+							"raw": "{{BASE_URL}}/auth/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
 					},
 					"response": []
 				}
@@ -106,9 +151,13 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{BARER_TOKEN}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BARER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "GET",
 						"header": [],
@@ -136,13 +185,27 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{BARER_TOKEN}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BARER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "GET",
 						"header": [],
-						"url": "{{BASE_URL}}/customer/find/CUST0002"
+						"url": {
+							"raw": "{{BASE_URL}}/customer/find/CUST0002",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"customer",
+								"find",
+								"CUST0002"
+							]
+						}
 					},
 					"response": []
 				},
@@ -151,9 +214,13 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{BARER_TOKEN}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BARER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "POST",
 						"header": [],
@@ -166,7 +233,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/customer/register"
+						"url": {
+							"raw": "{{BASE_URL}}/customer/register",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"customer",
+								"register"
+							]
+						}
 					},
 					"response": []
 				}
@@ -180,9 +256,13 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{BARER_TOKEN}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BARER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "GET",
 						"header": [],
@@ -210,13 +290,27 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{BARER_TOKEN}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BARER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "GET",
 						"header": [],
-						"url": "{{BASE_URL}}/product/find/P0002"
+						"url": {
+							"raw": "{{BASE_URL}}/product/find/P0002",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"product",
+								"find",
+								"P0002"
+							]
+						}
 					},
 					"response": []
 				},
@@ -225,9 +319,13 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{BARER_TOKEN}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BARER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "POST",
 						"header": [],
@@ -240,7 +338,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/product/register"
+						"url": {
+							"raw": "{{BASE_URL}}/product/register",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"product",
+								"register"
+							]
+						}
 					},
 					"response": []
 				}
@@ -256,14 +363,23 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"customerId\": \"CUST0001\",\r\n    \"employeeId\": \"EMP0001\",\r\n    \"items\": [\r\n        {\r\n            \"productId\": \"P0001\",\r\n            \"quantity\": 3\r\n        },\r\n        {\r\n            \"productId\": \"P0002\",\r\n            \"quantity\": 1\r\n        }\r\n    ],\r\n    \"notes\": \"Please deliver between 9 AM - 12 PM.\"\r\n}",
+							"raw": "{\r\n    \"customerId\": \"CUST0001\",\r\n    \"employeeId\": \"EMP0001\",\r\n    \"items\": [\r\n        {\r\n            \"productId\": \"P0001\",\r\n            \"quantity\": 3\r\n        },\r\n        {\r\n            \"productId\": \"P0002\",\r\n            \"quantity\": 1\r\n        }\r\n    ],\r\n    \"notes\": \"Please deliver between 9 AM - 12 PM.\",\r\n    \"price\": 10,\r\n    \"date\": \"2025-05-28 06:07:30.152918\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/orders/register"
+						"url": {
+							"raw": "{{BASE_URL}}/orders/register",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"orders",
+								"register"
+							]
+						}
 					},
 					"response": []
 				},
@@ -281,12 +397,23 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/orders/update/ORD-00001/status"
+						"url": {
+							"raw": "{{BASE_URL}}/orders/update/ORD-00001/status",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"orders",
+								"update",
+								"ORD-00001",
+								"status"
+							]
+						}
 					},
 					"response": []
 				},
 				{
-					"name": "create-new-orders-find",
+					"name": "orders-find",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -314,21 +441,31 @@
 					"response": []
 				},
 				{
-					"name": "create-new-orders-find-by-id",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": "{{BASE_URL}}/orders/find/ORD-00001"
-					},
-					"response": []
-				},
-				{
-					"name": "create-new-orders-find-search",
+					"name": "orders-find-by-id",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{BASE_URL}}/orders/search?customerName=Alif&page=1&pageSize=10",
+							"raw": "{{BASE_URL}}/orders/find/ORD-00001",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"orders",
+								"find",
+								"ORD-00001"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "orders-find-search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/orders/search?page=1&pageSize=10",
 							"host": [
 								"{{BASE_URL}}"
 							],
@@ -338,16 +475,32 @@
 							],
 							"query": [
 								{
-									"key": "customerName",
-									"value": "Alif"
-								},
-								{
 									"key": "page",
 									"value": "1"
 								},
 								{
 									"key": "pageSize",
 									"value": "10"
+								},
+								{
+									"key": "customerName",
+									"value": "Alif",
+									"disabled": true
+								},
+								{
+									"key": "customerId",
+									"value": "CUST0005",
+									"disabled": true
+								},
+								{
+									"key": "employeeId",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "status",
+									"value": "",
+									"disabled": true
 								}
 							]
 						}
@@ -359,22 +512,35 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{BARER_TOKEN}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BARER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"customer\": {\r\n        \"tel\": \"0812345678\",\r\n        \"line\": \"line_id_001\",\r\n        \"facebook\": \"fb_user_001\",\r\n        \"fullname\": \"สมชาย ใจดี\",\r\n        \"nickname\": \"ชาย\",\r\n        \"address\": \"123/45 หมู่บ้านตัวอย่าง กรุงเทพฯ\",\r\n        \"birthday\": \"1990-05-01\"\r\n    },\r\n    \"employeeId\": \"EMP0001\",\r\n    \"items\": [\r\n        {\r\n            \"productId\": \"P0001\",\r\n            \"quantity\": 2\r\n        },\r\n        {\r\n            \"productId\": \"P0002\",\r\n            \"quantity\": 1\r\n        }\r\n    ],\r\n    \"notes\": \"ลูกค้าสั่งรอบเช้า จัดส่งด่วน\"\r\n}",
+							"raw": "{\r\n    \"customer\": {\r\n        \"tel\": \"0812s345678\",\r\n        \"line\": \"linegs_id_001\",\r\n        \"facebook\": \"fb_ugsser_001\",\r\n        \"fullname\": \"สมgfชาย ใจดี\",\r\n        \"nickname\": \"ชาgsgย\",\r\n        \"address\": \"123/45 หมู่บ้านตัวอย่าง กรุงเทพฯ\",\r\n        \"birthday\": \"1990-05-01\"\r\n    },\r\n    \"employeeId\": \"EMP0001\",\r\n    \"items\": [\r\n        {\r\n            \"productId\": \"P0001\",\r\n            \"quantity\": 2\r\n        },\r\n        {\r\n            \"productId\": \"P0002\",\r\n            \"quantity\": 1\r\n        }\r\n    ],\r\n    \"notes\": \"ลูกค้าสั่งรอบเช้า จัดส่งด่วน\",\r\n    \"price\": 10,\r\n    \"date\": \"2025-05-28 06:07:30.152918\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/orders/register-with-customer"
+						"url": {
+							"raw": "{{BASE_URL}}/orders/register-with-customer",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"orders",
+								"register-with-customer"
+							]
+						}
 					},
 					"response": []
 				}
@@ -398,7 +564,17 @@
 								}
 							]
 						},
-						"url": "{{BASE_URL}}/upload/employee/EMP0001"
+						"url": {
+							"raw": "{{BASE_URL}}/upload/employee/EMP0001",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"upload",
+								"employee",
+								"EMP0001"
+							]
+						}
 					},
 					"response": []
 				},
@@ -479,13 +655,27 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{BARER_TOKEN}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BARER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "GET",
 						"header": [],
-						"url": "{{BASE_URL}}/upload/owner/ORD-00001"
+						"url": {
+							"raw": "{{BASE_URL}}/upload/owner/ORD-00001",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"upload",
+								"owner",
+								"ORD-00001"
+							]
+						}
 					},
 					"response": []
 				}

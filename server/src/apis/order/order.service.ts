@@ -33,6 +33,7 @@ export class OrderService {
 
   async createWithCustomer(
     dto: CreateOrderWithCustomerDto,
+    baseUrl: string,
   ): Promise<OrderEntity> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -46,9 +47,11 @@ export class OrderService {
         employeeId: dto.employeeId,
         items: dto.items,
         notes: dto.notes,
+        date: dto.date,
+        price: dto.price,
       };
 
-      const order = await this.create(createOrderDto);
+      const order = await this.create(createOrderDto, baseUrl);
       await queryRunner.commitTransaction();
       return order;
     } catch (error) {
@@ -59,8 +62,12 @@ export class OrderService {
     }
   }
 
-  async create(createOrderDto: CreateOrderDto): Promise<OrderEntity> {
-    const { customerId, employeeId, items, notes } = createOrderDto;
+  async create(
+    createOrderDto: CreateOrderDto,
+    baseUrl: string,
+  ): Promise<OrderEntity> {
+    const { customerId, employeeId, items, notes, price, date } =
+      createOrderDto;
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -84,7 +91,6 @@ export class OrderService {
         }
       }
 
-      let totalAmount = 0;
       const orderItems: OrderItemEntity[] = [];
 
       for (const itemDto of items) {
@@ -97,16 +103,12 @@ export class OrderService {
           );
         }
 
-        const pricePerUnit = product.price;
-        const itemTotalPrice = pricePerUnit * itemDto.quantity;
-        totalAmount += itemTotalPrice;
-
         const orderItem = new OrderItemEntity();
         orderItem.product_id = product.id;
         orderItem.product = product;
         orderItem.quantity = itemDto.quantity;
-        orderItem.price_per_unit = pricePerUnit;
-        orderItem.total_price = itemTotalPrice;
+        orderItem.price_per_unit = 0;
+        orderItem.total_price = 0;
 
         orderItems.push(orderItem);
       }
@@ -140,14 +142,15 @@ export class OrderService {
         order.employee = employee;
       }
       order.status = OrderStatus.PENDING;
-      order.total_amount = totalAmount;
+      order.total_amount = price;
       order.notes = notes;
       order.items = orderItems;
+      order.date = date;
 
       const savedOrder = await queryRunner.manager.save(OrderEntity, order);
 
       await queryRunner.commitTransaction();
-      return this.findOne(savedOrder.id);
+      return this.findOne(savedOrder.id, baseUrl);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (
@@ -166,6 +169,7 @@ export class OrderService {
   async findAll(
     page = 1,
     pageSize = 10,
+    baseUrl: string,
   ): Promise<{ data: OrderEntity[]; total: number }> {
     const [data, total] = await this.orderRepository.findAndCount({
       relations: ['customer', 'employee', 'items', 'items.product'],
@@ -183,13 +187,18 @@ export class OrderService {
       .andWhere('upload.owner_id IN (:...orderIds)', { orderIds })
       .getMany();
     for (const order of data) {
-      order.uploads = uploads.filter((u) => u.owner_id === order.id);
+      order.uploads = uploads
+        .filter((u) => u.owner_id === order.id)
+        .map((u) => ({
+          ...u,
+          url: `${baseUrl}/${u.path}`,
+        }));
     }
 
     return { data, total };
   }
 
-  async findOne(id: string): Promise<OrderEntity> {
+  async findOne(id: string, baseUrl: string): Promise<OrderEntity> {
     const order = await this.orderRepository.findOne({
       where: { id },
       relations: ['customer', 'employee', 'items', 'items.product'],
@@ -204,7 +213,10 @@ export class OrderService {
       .where('upload.owner_type = :ownerType', { ownerType: 'order' })
       .andWhere('upload.owner_id = :orderId', { orderId: order.id })
       .getMany();
-    order.uploads = uploads;
+    order.uploads = uploads.map((u) => ({
+      ...u,
+      url: `${baseUrl}/${u.path}`,
+    }));
 
     return order;
   }
@@ -212,14 +224,15 @@ export class OrderService {
   async updateStatus(
     id: string,
     updateOrderStatusDto: UpdateOrderStatusDto,
+    baseUrl: string,
   ): Promise<OrderEntity> {
-    const order = await this.findOne(id); // Reuse findOne to check existence
+    const order = await this.findOne(id, baseUrl); // Reuse findOne to check existence
 
     order.status = updateOrderStatusDto.status;
     order.updated_at = new Date(); // Manually update if not auto-updating
 
     await this.orderRepository.save(order);
-    return this.findOne(id); // Return updated order with relations
+    return this.findOne(id, baseUrl); // Return updated order with relations
   }
 
   async remove(id: string): Promise<void> {
@@ -238,6 +251,7 @@ export class OrderService {
     },
     page = 1,
     pageSize = 10,
+    baseUrl: string,
   ): Promise<{ data: OrderEntity[]; total: number }> {
     const queryBuilder = this.dataSource
       .getRepository(OrderEntity)
@@ -296,7 +310,12 @@ export class OrderService {
       .andWhere('upload.owner_id IN (:...orderIds)', { orderIds })
       .getMany();
     for (const order of data) {
-      order.uploads = uploads.filter((u) => u.owner_id === order.id);
+      order.uploads = uploads
+        .filter((u) => u.owner_id === order.id)
+        .map((u) => ({
+          ...u,
+          url: `${baseUrl}/${u.path}`,
+        }));
     }
 
     return { data, total };
