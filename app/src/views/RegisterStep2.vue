@@ -1,70 +1,75 @@
 <template>
-  <v-container fluid class="login-container fill-height pa-0">
-    <v-row no-gutters class="fill-height">
-      
-      <!-- Left Logo Panel -->
-      <v-col cols="12" md="6" class="d-none d-md-flex login-left">
-        <div class="branding">
-          <h1 class="brand-title">Chi Brows</h1>
-          <p class="brand-subtitle">THE PROFESSIONAL EYEBROWS</p>
+  <AuthFormLayout
+    title="ลงทะเบียน"
+    subtitle="กรอกข้อมูลส่วนตัวของคุณ"
+  >
+    <template #form>
+      <v-form @submit.prevent="handleNext">
+        <div class="form-group">
+          <v-text-field
+            v-model="fullName"
+            label="ชื่อ–นามสกุล"
+            variant="outlined"
+            density="comfortable"
+            required
+            prepend-inner-icon="mdi-account-circle"
+            class="form-input"
+          />
         </div>
-      </v-col>
 
-      <!-- Right Form Panel -->
-      <v-col cols="12" md="6" class="login-right d-flex align-center justify-center">
-        <v-card class="elevation-0 login-form-card" flat>
-          <h2 class="text-center font-weight-bold mb-6">ลงทะเบียน</h2>
+        <div class="form-group">
+          <v-text-field
+            v-model="birthdate"
+            label="วัน–เดือน–ปีเกิด"
+            type="date"
+            variant="outlined"
+            density="comfortable"
+            required
+            prepend-inner-icon="mdi-calendar"
+            class="form-input"
+          />
+        </div>
 
-          <v-form @submit.prevent="handleNext">
-            <v-text-field
-              v-model="fullName"
-              label="ชื่อ–นามสกุล"
-              outlined
-              dense
-              required
-            />
+        <div class="form-group">
+          <v-text-field
+            v-model="email"
+            label="อีเมล"
+            type="email"
+            variant="outlined"
+            density="comfortable"
+            required
+            prepend-inner-icon="mdi-email"
+            class="form-input"
+          />
+        </div>
 
-            <v-text-field
-              v-model="birthdate"
-              label="วัน–เดือน–ปีเกิด"
-              type="date"
-              outlined
-              dense
-              required
-            />
+        <v-btn
+          color="primary"
+          size="large"
+          block
+          type="submit"
+          class="auth-btn"
+          variant="flat"
+        >
+          ถัดไป
+        </v-btn>
+      </v-form>
+    </template>
 
-            <v-text-field
-              v-model="email"
-              label="อีเมล"
-              type="email"
-              outlined
-              dense
-              required
-            />
-
-            <v-btn
-              color="brown-darken-3"
-              size="large"
-              block
-              type="submit"
-              class="mt-4"
-            >
-              ถัดไป
-            </v-btn>
-
-            <div class="text-center mt-4">
-              <span>มีบัญชี Chi Brows ?</span>
-              <RouterLink to="/auth/login" class="text-red"> เข้าสู่ระบบ</RouterLink>
-            </div>
-          </v-form>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+    <template #footer>
+      <p class="register-text">
+        มีบัญชี Chi Brows ?
+        <RouterLink to="/auth/login" class="register-link">
+          เข้าสู่ระบบ
+        </RouterLink>
+      </p>
+    </template>
+  </AuthFormLayout>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import AuthFormLayout from '@/components/AuthFormLayout.vue'
 // import { useRouter } from 'vue-router'
 
 // const router = useRouter()
@@ -80,40 +85,5 @@ function handleNext() {
 </script>
 
 <style scoped>
-.login-container {
-  background-color: #fff;
-}
-
-.login-left {
-  background-color: #8b2e2e;
-  color: white;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  text-align: center;
-}
-
-.brand-title {
-  font-size: 48px;
-  font-weight: bold;
-  color: gold;
-  margin-bottom: 8px;
-}
-
-.brand-subtitle {
-  font-size: 14px;
-  letter-spacing: 1px;
-  color: #ffd700cc;
-}
-
-.login-form-card {
-  width: 100%;
-  max-width: 400px;
-}
-
-.text-red {
-  color: #b71c1c;
-  font-weight: 500;
-  cursor: pointer;
-}
+/* All styles are now handled by the AuthFormLayout component */
 </style>

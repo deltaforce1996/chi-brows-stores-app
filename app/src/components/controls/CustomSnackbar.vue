@@ -1,7 +1,9 @@
 <template>
   <transition name="fade">
     <div v-if="visible" :class="['snackbar', type]">
-      <v-icon class="icon">{{ iconName }}</v-icon>
+      <span class="icon-bg">
+        <v-icon class="icon">{{ iconName }}</v-icon>
+      </span>
       <span class="message">{{ message }}</span>
       <button class="close-btn" @click="close" aria-label="Close">&times;</button>
     </div>
@@ -54,34 +56,45 @@ defineExpose({ show })
   min-width: 260px;
   max-width: 90vw;
   padding: 18px 32px 18px 20px;
-  border-radius: 16px;
+  border-radius: 18px;
   color: #fff;
   font-size: 16px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 1.5px 6px rgba(0,0,0,0.10);
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
   z-index: 9999;
-  backdrop-filter: blur(6px);
-  background: rgba(30, 30, 30, 0.92);
-  border: 1px solid rgba(255,255,255,0.08);
-  transition: box-shadow 0.2s;
+  backdrop-filter: blur(10px);
+  background: rgba(34, 40, 49, 0.85);
+  border: 1px solid rgba(255,255,255,0.10);
+  transition: box-shadow 0.2s, background 0.2s;
 }
 .snackbar.info {
-  background: linear-gradient(90deg, #2196f3 80%, #1976d2 100%);
+  background: linear-gradient(90deg, rgba(33,150,243,0.92) 80%, rgba(25,118,210,0.92) 100%);
 }
 .snackbar.success {
-  background: linear-gradient(90deg, #43e97b 80%, #38f9d7 100%);
+  background: linear-gradient(90deg, rgba(67,233,123,0.92) 80%, rgba(56,249,215,0.92) 100%);
   color: #1a3a2b;
 }
 .snackbar.error {
-  background: linear-gradient(90deg, #f85032 80%, #e73827 100%);
+  background: linear-gradient(90deg, rgba(248,80,50,0.92) 80%, rgba(231,56,39,0.92) 100%);
 }
-.icon {
-  font-size: 22px;
-  margin-right: 4px;
+.icon-bg {
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--icon-bg, #2196f3);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+.snackbar.info .icon-bg { --icon-bg: #2196f3; }
+.snackbar.success .icon-bg { --icon-bg: #43e97b; }
+.snackbar.error .icon-bg { --icon-bg: #f85032; }
+.icon {
+  font-size: 22px;
+  color: #fff;
 }
 .message {
   flex: 1;
