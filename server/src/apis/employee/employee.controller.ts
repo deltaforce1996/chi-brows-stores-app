@@ -35,7 +35,6 @@ import {
   new ForbiddenExceptionFilter(),
   new InternalServerErrorExceptFilter(),
 )
-@UseGuards(JwtAuthGuard)
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
@@ -45,7 +44,7 @@ export class EmployeeController {
     return new Successfully<EmployeeBase>('Register successfully.', result);
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('search')
   async search(
     @Query('q') q: string,
@@ -71,20 +70,21 @@ export class EmployeeController {
     });
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('find/:id')
   async getById(@Param('id') id: string) {
     const result = await this.employeeService.getById(id);
     return new Successfully<EmployeeBase>('Get successfully.', result);
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('me')
   async getMe(@CurrentUser() user: any) {
     const result = await this.employeeService.getById(user.id);
     return new Successfully<EmployeeBase>('Get successfully.', result);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put('update/:id')
   async update(@Param('id') id: string, @Body() dto: UpdateEmployeeDto) {
     const result = await this.employeeService.update(id, dto);
