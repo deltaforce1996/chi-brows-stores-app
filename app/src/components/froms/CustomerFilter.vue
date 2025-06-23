@@ -2,67 +2,18 @@
   <v-row justify="center">
     <v-col cols="12" class="pa-2">
       <v-card class="pa-4 mx-auto" outlined>
-        <v-card-title>ตัวกรอง</v-card-title>
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-select
-              label="รหัสพนักงาน/นักศึกษา"
-              :items="idOptions"
-              v-model="form.id"
-              clearable
-              variant="outlined"
-              density="compact"
-            />
-          </v-col>
+        <v-card-title>ค้นหาผู้ใช้</v-card-title>
 
-          <v-col cols="12" md="6">
-            <v-select
-              label="รูปแบบการให้บริการ"
-              :items="serviceTypes"
-              v-model="form.serviceType"
-              clearable
-              variant="outlined"
-              density="compact"
-            />
-          </v-col>
-
-          <v-col cols="12" md="6">
-            <v-select
-              label="ชื่อ - สกุล"
-              :items="nameOptions"
-              v-model="form.name"
-              clearable
-              variant="outlined"
-              density="compact"
-            />
-          </v-col>
-
-          <v-col cols="12" md="6">
-            <v-select
-              label="หมายเลขโทรศัพท์"
-              :items="phoneOptions"
-              v-model="form.phone"
-              clearable
-              variant="outlined"
-              density="compact"
-            />
-          </v-col>
-
-          <v-col cols="12" md="6">
-            <v-select
-              label="อีเมล"
-              :items="emailOptions"
-              v-model="form.email"
-              clearable
-              variant="outlined"
-              density="compact"
-            />
-          </v-col>
-        </v-row>
-        <!-- @click="submitForm" -->
+        <v-text-field
+          label="ค้นหาจากชื่อ, เบอร์, อีเมล หรือรหัส"
+          v-model="searchText"
+          variant="outlined"
+          density="compact"
+          clearable
+        />
 
         <v-card-actions class="justify-end mt-4">
-          <v-btn class="next-button" @click="submitForm"> ถัดไป </v-btn>
+          <v-btn class="next-button" @click="submitSearch">ค้นหา</v-btn>
         </v-card-actions>
       </v-card>
     </v-col>
@@ -70,30 +21,20 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref } from 'vue'
 
-// ✅ ใช้ defineEmits เพื่อส่งข้อมูลกลับไป
-const emit = defineEmits(["submit"]);
+// 👇 สร้าง emit เพื่อส่งข้อมูลออกไป
+const emit = defineEmits(['submit'])
 
-const form = ref({
-  id: null,
-  name: null,
-  email: null,
-  phone: null,
-  serviceType: null,
-});
+// 👇 ตัวแปรเก็บข้อความที่ค้นหา
+const searchText = ref('')
 
-// ตัวอย่าง options
-const idOptions = ["60123456", "60234567"];
-const nameOptions = ["สมชาย ใจดี", "สมหญิง แสนสวย"];
-const emailOptions = ["example1@email.com", "example2@email.com"];
-const phoneOptions = ["0812345678", "0899998888"];
-const serviceTypes = ["กรุณาระบุคณะ", "ออนไลน์", "มาที่สำนักงาน"];
-
-function submitForm() {
-  emit("submit", { ...form.value });
+// 👇 ส่งค่ากลับไปยัง parent component
+function submitSearch() {
+  emit('submit', searchText.value)
 }
 </script>
+
 <style scoped>
 .next-button {
   background-color: #d66b63;
@@ -104,9 +45,5 @@ function submitForm() {
   text-transform: none;
   font-weight: bold;
   font-size: 14px;
-}
-.wide-card {
-  max-width: 1200px;
-  width: 100%;
 }
 </style>

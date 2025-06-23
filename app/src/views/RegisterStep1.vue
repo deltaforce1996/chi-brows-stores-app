@@ -1,71 +1,63 @@
 <template>
-  <AuthFormLayout
-    title="ลงทะเบียน"
-    subtitle="สร้างบัญชี Chi Brows ของคุณ"
-  >
+  <AuthFormLayout title="ลงทะเบียน" subtitle="สร้างบัญชี Chi Brows ของคุณ">
     <template #form>
       <v-form @submit.prevent="handleRegister">
-        <div class="form-group">
-          <v-text-field
-            v-model="phone"
-            label="เบอร์โทรศัพท์"
-            variant="outlined"
-            density="comfortable"
-            required
-            prepend-inner-icon="mdi-phone"
-            class="form-input"
-            type="tel"
-          />
-        </div>
+        <v-text-field
+          v-model="username"
+          label="ชื่อผู้ใช้งาน"
+          prepend-inner-icon="mdi-account"
+          variant="outlined"
+          required
+        />
+        <v-text-field
+          v-model="password"
+          label="รหัสผ่าน"
+          type="password"
+          prepend-inner-icon="mdi-lock"
+          variant="outlined"
+          required
+        />
+        <v-text-field
+          v-model="confirmPassword"
+          label="ยืนยันรหัสผ่าน"
+          type="password"
+          prepend-inner-icon="mdi-lock-check"
+          variant="outlined"
+          required
+        />
+        <v-text-field
+          v-model="fullName"
+          label="ชื่อ–นามสกุล"
+          prepend-inner-icon="mdi-account-circle"
+          variant="outlined"
+          required
+        />
+        <v-text-field
+          v-model="tel"
+          label="เบอร์โทรศัพท์"
+          prepend-inner-icon="mdi-phone"
+          type="tel"
+          variant="outlined"
+          required
+        />
+        <v-text-field
+          v-model="email"
+          label="อีเมล"
+          prepend-inner-icon="mdi-email"
+          type="email"
+          variant="outlined"
+          required
+        />
+        <v-text-field
+          v-model="birthday"
+          label="วันเกิด"
+          prepend-inner-icon="mdi-calendar"
+          type="date"
+          variant="outlined"
+          required
+        />
 
-        <div class="form-group">
-          <v-text-field
-            v-model="username"
-            label="ชื่อผู้ใช้งาน"
-            variant="outlined"
-            density="comfortable"
-            required
-            prepend-inner-icon="mdi-account"
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-group">
-          <v-text-field
-            v-model="password"
-            label="รหัสผ่าน"
-            type="password"
-            variant="outlined"
-            density="comfortable"
-            required
-            prepend-inner-icon="mdi-lock"
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-group">
-          <v-text-field
-            v-model="confirmPassword"
-            label="ยืนยันรหัสผ่าน"
-            type="password"
-            variant="outlined"
-            density="comfortable"
-            required
-            prepend-inner-icon="mdi-lock-check"
-            class="form-input"
-          />
-        </div>
-
-        <v-btn
-          color="primary"
-          size="large"
-          block
-          type="submit"
-          class="auth-btn"
-          variant="flat"
-        >
-          ถัดไป
-        </v-btn>
+        <v-btn type="submit" block color="primary" variant="flat">ถัดไป</v-btn>
       </v-form>
     </template>
 
@@ -81,32 +73,64 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import AuthFormLayout from '@/components/AuthFormLayout.vue'
-// import { useRouter } from 'vue-router'
+import { ref } from "vue";
+import AuthFormLayout from "@/components/AuthFormLayout.vue";
+import { registerEmployee } from "@/services/employeeService";
+import { showSuccess, showErr } from "@/lib/snackbar.js";
+import { useRouter } from "vue-router";
 
-// const router = useRouter()  
+const router = useRouter();
 
-const phone = ref('')
-const username = ref('')
-const password = ref('')
-const confirmPassword = ref('')
+const username = ref("");
+const password = ref("");
+const confirmPassword = ref("");
+const fullName = ref("");
+const tel = ref("");
+const email = ref("");
+const birthday = ref("");
 
-function handleRegister() {
+async function handleRegister() {
   if (password.value !== confirmPassword.value) {
-    alert('รหัสผ่านไม่ตรงกัน')
-    return
+    alert("❌ รหัสผ่านไม่ตรงกัน");
+    return;
   }
 
-  // Mock register action
-  alert(`ลงทะเบียนเรียบร้อย!\nเบอร์: ${phone.value}\nชื่อผู้ใช้: ${username.value}`)
+  // ตรวจสอบข้อมูลครบ
+  if (
+    !username.value ||
+    !password.value ||
+    !fullName.value ||
+    !tel.value ||
+    !email.value ||
+    !birthday.value
+  ) {
+    alert("⚠️ กรุณากรอกข้อมูลให้ครบถ้วน");
+    return;
+  }
+  const payload = {
+    username: username.value,
+    password: password.value,
+    fullname: fullName.value,
+    tel: tel.value,
+    email: email.value,
+    birthday: birthday.value,
+  };
 
-  // สมมุติว่าไปขั้นตอนถัดไป
-  // router.push('/register-step-2') // ถ้ามีหลายขั้นตอน
+  try {
+    const res = await registerEmployee(payload);
+    console.log("✅ ลงทะเบียนสำเร็จ:", res);
+    showSuccess("ลงทะเบียนสำเร็จ");
+    router.push("/auth/login");
+
+    // alert('🎉 ลงทะเบียนสำเร็จ!')
+  } catch (err) {
+    console.error("❌ ลงทะเบียนล้มเหลว:", err);
+    // alert('เกิดข้อผิดพลาดในการลงทะเบียน')
+    showErr("ลงทะเบียนไม่สำเร็จ");
+  }
 }
 </script>
 
 <style scoped>
 /* All styles are now handled by the AuthFormLayout component */
 </style>
-  

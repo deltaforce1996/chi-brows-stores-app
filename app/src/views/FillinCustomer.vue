@@ -1,24 +1,70 @@
 <template>
-    <v-container fluid>
-      <!-- เรียกใช้ฟอร์ม -->
-      <fromCustomer @submit="handleSubmit" />
-    </v-container>
-  </template>
-  
-  <script setup>
-  import fromCustomer from '../components/froms/fromCustomer.vue'
-  
-  function handleSubmit(formData) {
-    console.log('📦 ข้อมูลที่ได้รับจากฟอร์ม:', formData)
-  
-    // ✅ ตัวอย่าง: ส่งไปยัง API
-    // await axios.post('/api/booking', formData)
-  
-    // ✅ หรืออัปเดต store
-    // store.saveBooking(formData)
-  
-    // ✅ หรือเปลี่ยนหน้า
-    // router.push('/confirmation')
+  <v-container fluid>
+
+    <formCustomer @submit="handleSubmit" />
+  </v-container>
+</template>
+
+<script setup>
+import formCustomer from '../components/froms/fromCustomer.vue'
+import { createOrderWithCustomer, uploadOrderImage } from '@/services/orderService'
+import { showSuccess, showErr } from "@/lib/snackbar.js";
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+async function handleSubmit(formData) {
+  console.log('📦 ฟอร์มดิบ:', formData)
+
+  const payload = {
+    customer: {
+      tel: formData.phone,
+      line: formData.line,
+      facebook: formData.facebook,
+      fullname: formData.fullName,
+      nickname: formData.nickname,
+      address: formData.address,
+      birthday: formData.birthday || ''
+    },
+    employeeId: formData.provider || '',
+    items: [
+      {
+        productId: formData.serviceType || '',
+        quantity: 1
+      }
+    ],
+    notes: formData.medicalCondition || '',
+    price: Number(formData.price) || 0,
+    date: new Date().toISOString()
   }
-  </script>
-  
+
+  try {
+    const response = await createOrderWithCustomer(payload)
+    console.log('✅ สร้างออร์เดอร์สำเร็จ:', response)
+
+    const orderId = response?.id || response?.orderId
+
+    if (formData.image && orderId) {
+      try {
+        await uploadOrderImage(orderId, formData.image)
+        console.log('📸 อัปโหลดรูปภาพสำเร็จ')
+        showSuccess("บันทึกข้อมูลและรูปภาพสำเร็จ")
+      } catch (uploadError) {
+        console.error('❌ อัปโหลดรูปภาพล้มเหลว:', uploadError)
+        showSuccess("บันทึกข้อมูลสำเร็จ")
+      }
+    } else {
+      showSuccess("บันทึกข้อมูลสำเร็จ")
+    }
+
+    setTimeout(() => {
+      router.push({ name: 'home' })
+    }, 800) 
+
+  } catch (error) {
+    console.error('❌ สร้างออร์เดอร์ล้มเหลว:', error)
+    showErr("บันทึกข้อมูลล้มเหลว")
+  }
+}
+
+</script>

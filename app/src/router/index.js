@@ -6,6 +6,8 @@ import authMiddleware from '../middlewares/auth'
 // Views
 import CustomerInfomation from '../views/CustomerInfomation.vue'
 import FillinCustomer from '../views/FillinCustomer.vue'
+import PrefillCustomer from '../views/PrefillCustomer.vue'
+
 import Login from '../views/Login.vue'
 import RegisterStep1 from '../views/RegisterStep1.vue'
 import RegisterStep2 from '../views/RegisterStep2.vue'
@@ -24,6 +26,11 @@ const routes = [
         path: 'FillinCustomer',
         name: 'FillinCustomer',
         component: FillinCustomer
+      },
+            {
+        path: 'PrefillCustomer/:id',
+        name: 'PrefillCustomer',
+        component: PrefillCustomer
       },
     ]
   },

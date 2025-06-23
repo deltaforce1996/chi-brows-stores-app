@@ -1,4 +1,4 @@
-import axios from '@/lib/axiosInstance'
+import axios from "@/lib/axiosInstance";
 
 /**
  * @typedef {Object} CustomerPayload
@@ -26,25 +26,29 @@ import axios from '@/lib/axiosInstance'
 
 /** @param {CustomerPayload} payload @returns {Promise<CustomerResponse>} */
 export async function registerCustomer(payload) {
-  const res = await axios.post('/customer/register', payload)
-  return res.data.data
+  const res = await axios.post("/customer/register", payload);
+  return res.data.data;
 }
 
 /** @param {string} id @returns {Promise<CustomerResponse>} */
 export async function findCustomerById(id) {
-  const res = await axios.get(`/customer/find/${id}`)
-  return res.data.data
+  const res = await axios.get(`/customer/find/${id}`);
+  return res.data.data;
 }
 
 /**
- * @param {string} query
  * @param {number} [page=1]
  * @param {number} [pageSize=10]
  * @returns {Promise<{items: CustomerResponse[], pagination: Object}>}
  */
-export async function searchCustomers(query, page = 1, pageSize = 10) {
-  const res = await axios.get('/customer/search', {
-    params: { query, page, pageSize },
-  })
-  return res.data.data
+export async function searchCustomers(q, page = 1, pageSize = 10) {
+  const res = await axios.get("/customer/search", {
+    params: { q, page, pageSize },
+  });
+  return res.data.data;
 }
+
+// exmaple;
+// const result = await searchCustomers("alif", 0, 1);
+// const result = await searchCustomers("087625465", 0, 1);
+// const result = await searchCustomers("alif_line", 0, 1);
