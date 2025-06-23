@@ -1,142 +1,345 @@
 <template>
+  <v-container fluid class="pa-0">
+    <!-- Header Section -->
+    <div class="hero-section">
+      <v-container>
+        <div class="d-flex align-center mb-4">
+          <v-icon size="32" color="primary" class="mr-3">mdi-account-circle</v-icon>
+          <h1 class="text-h4 font-weight-bold text-grey-darken-3">ข้อมูลลูกค้า</h1>
+        </div>
+        <p class="text-subtitle-1 text-grey-darken-1">จัดการข้อมูลและประวัติการใช้บริการ</p>
+      </v-container>
+    </div>
 
-  
-  <v-container v-if="user">
-    <!-- 🧍‍♀️ ข้อมูลผู้ใช้ -->
-    <v-card class="pa-6 mb-6" outlined>
-      <v-card-title class="text-red font-weight-bold">ข้อมูลผู้ใช้</v-card-title>
-      <v-row class="my-6">
-        <v-col cols="12" md="8">
-          <v-card flat class="pa-4">
-            <v-row>
-              <v-col cols="12" sm="6"><strong>ชื่อ-สกุล:</strong> {{ user.fullname }}</v-col>
-              <v-col cols="12" sm="6"><strong>ชื่อเล่น:</strong> {{ user.nickname }}</v-col>
-              <v-col cols="12" sm="6"><strong>Facebook:</strong> {{ user.facebook }}</v-col>
-              <v-col cols="12" sm="6"><strong>Line:</strong> {{ user.line }}</v-col>
-              <v-col cols="12" sm="6"><strong>ที่อยู่:</strong> {{ user.address }}</v-col>
-              <v-col cols="12" sm="6"><strong>เบอร์โทร:</strong> {{ user.tel }}</v-col>
-              <v-col cols="12" sm="6"><strong>วันเกิด:</strong> {{ user.birthday }}</v-col>
-              <v-col cols="12" sm="6"><strong>วันที่ลงทะเบียน:</strong> {{ formatDate(user.created_at) }}</v-col>
-            </v-row>
+    <v-container class="mt-n8">
+      <div v-if="user">
+        <!-- Customer Information Section -->
+        <div class="customer-section mb-4">
+          <div class="section-header">
+            <v-icon size="20" color="white" class="mr-2">mdi-account</v-icon>
+            <h2 class="text-h6 font-weight-bold text-white">ข้อมูลผู้ใช้</h2>
+          </div>
+          
+          <v-card class="customer-content" elevation="4">
+            <v-card-text class="pa-4">
+              <v-row>
+                <v-col cols="12" lg="9">
+                  <v-row>
+                    <v-col cols="12" sm="6" class="info-item">
+                      <div class="info-label">ชื่อ-สกุล</div>
+                      <div class="info-value">{{ user.fullname }}</div>
+                    </v-col>
+                    <v-col cols="12" sm="6" class="info-item">
+                      <div class="info-label">ชื่อเล่น</div>
+                      <div class="info-value">{{ user.nickname }}</div>
+                    </v-col>
+                    <v-col cols="12" sm="6" class="info-item">
+                      <div class="info-label">Facebook</div>
+                      <div class="info-value">{{ user.facebook }}</div>
+                    </v-col>
+                    <v-col cols="12" sm="6" class="info-item">
+                      <div class="info-label">Line</div>
+                      <div class="info-value">{{ user.line }}</div>
+                    </v-col>
+                    <v-col cols="12" sm="6" class="info-item">
+                      <div class="info-label">ที่อยู่</div>
+                      <div class="info-value">{{ user.address }}</div>
+                    </v-col>
+                    <v-col cols="12" sm="6" class="info-item">
+                      <div class="info-label">เบอร์โทร</div>
+                      <div class="info-value">{{ user.tel }}</div>
+                    </v-col>
+                    <v-col cols="12" sm="6" class="info-item">
+                      <div class="info-label">วันเกิด</div>
+                      <div class="info-value">{{ user.birthday }}</div>
+                    </v-col>
+                    <v-col cols="12" sm="6" class="info-item">
+                      <div class="info-label">วันที่ลงทะเบียน</div>
+                      <div class="info-value">{{ formatDate(user.created_at) }}</div>
+                    </v-col>
+                  </v-row>
+                </v-col>
+                <v-col cols="12" lg="3" class="d-flex justify-center align-center">
+                  <div class="customer-avatar">
+                    <v-icon size="50" color="grey-lighten-1">mdi-account-circle</v-icon>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card-text>
           </v-card>
-        </v-col>
-      </v-row>
-    </v-card>
+        </div>
 
-    <!-- 📦 ประวัติการใช้บริการ -->
-    <v-card class="pa-4 mt-8" outlined>
-      <v-card-title class="text-h6 font-weight-bold text-primary">ประวัติการใช้บริการ</v-card-title>
+        <!-- Service History Section -->
+        <div class="history-section mb-8">
+          <div class="section-header">
+            <v-icon size="24" color="white" class="mr-2">mdi-history</v-icon>
+            <h2 class="text-h5 font-weight-bold text-white">ประวัติการใช้บริการ</h2>
+            <v-spacer></v-spacer>
+            <v-chip color="white" variant="tonal" size="small">
+              {{ orders.length }} รายการ
+            </v-chip>
+          </div>
 
-      <div v-if="orders.length">
-        <div v-for="(order, index) in orders" :key="order.id" class="mt-6">
-          <v-divider class="mb-4" />
-          <h3 class="text-subtitle-1 font-weight-bold mb-2">
-            🧾 ครั้งที่ {{ index + 1 }} - รหัส: {{ order.id }}
-          </h3>
-          <p class="mb-2">
-            <strong>สถานะ:</strong> {{ order.status }} |
-            <strong>ยอดรวม:</strong> ฿{{ order.total_amount }} |
-            <strong>วันที่สั่ง:</strong> {{ formatDate(order.created_at) }}
-          </p>
-{{  order.uploads[0]?.url}}
-          <v-row>
-            <v-col cols="12">
-              <v-card outlined v-if="order.items.length" class="d-flex flex-row-reverse">
-                <v-img
-                  :src="`${order.uploads[0]?.url || ''}`"
-                  width="160"
-                  height="160"
-                  cover
-                  class="rounded-l-lg"
-                />
-                <div class="pa-4 flex-grow-1">
-                  <div class="mb-2"><strong>รูปแบบการให้บริการ:</strong><br />{{ order.items[0]?.product?.name }}</div>
-                  <div class="mb-2"><strong>โรคประจำตัว:</strong><br />{{ order.items[0]?.product?.description || "-" }}</div>
-                  <div class="mb-2"><strong>ชื่อผู้ให้บริการ:</strong><br />{{ order.employee.fullname }}</div>
-                  <div class="mb-2"><strong>วันที่-เวลา:</strong><br />{{ formatDate(order.created_at) }}</div>
-                </div>
-              </v-card>
-            </v-col>
-          </v-row>
+          <v-card class="history-content" elevation="8">
+
+          <v-card-text class="pa-6">
+            <div v-if="orders.length">
+              <v-expansion-panels v-model="expandedOrders" multiple class="mb-4">
+                <v-expansion-panel
+                  v-for="(order, index) in orders"
+                  :key="order.id"
+                  class="order-expansion-panel mb-3"
+                  elevation="2"
+                >
+                  <v-expansion-panel-title class="pa-4">
+                    <v-row no-gutters align="center">
+                      <v-col cols="2" md="1" class="d-flex justify-center">
+                        <div class="order-number">{{ index + 1 }}</div>
+                      </v-col>
+                      <v-col cols="6" md="4" v-if="order.uploads?.[0]?.url">
+                        <v-img
+                          :src="order.uploads[0].url"
+                          width="60"
+                          height="60"
+                          cover
+                          class="rounded-lg elevation-3 service-thumbnail"
+                        />
+                      </v-col>
+                      <v-col cols="6" md="4" v-else>
+                        <div class="no-image-placeholder">
+                          <v-icon color="grey-lighten-1" size="40">mdi-image-off</v-icon>
+                        </div>
+                      </v-col>
+                      <v-col cols="12" md="6" class="pl-4">
+                        <div class="service-summary">
+                          <h4 class="text-subtitle-1 font-weight-bold mb-1">
+                            {{ order.items[0]?.product?.name || 'ไม่ระบุบริการ' }}
+                          </h4>
+                          <div class="d-flex align-center gap-2 mb-1">
+                            <v-chip 
+                              :color="getStatusChipColor(order.status)" 
+                              size="x-small" 
+                              variant="tonal"
+                            >
+                              {{ order.status }}
+                            </v-chip>
+                            <span class="text-body-2 text-grey-darken-1">
+                              {{ formatDate(order.created_at) }}
+                            </span>
+                          </div>
+                          <div class="text-h6 font-weight-bold text-primary">
+                            ฿{{ order.total_amount }}
+                          </div>
+                        </div>
+                      </v-col>
+                      <v-col cols="1" class="d-flex justify-end">
+                        <span class="text-caption text-grey-darken-1">#{{ order.id }}</span>
+                      </v-col>
+                    </v-row>
+                  </v-expansion-panel-title>
+
+                  <v-expansion-panel-text class="pa-4 bg-grey-lighten-5">
+                    <v-row>
+                      <v-col cols="12" md="8">
+                        <div class="service-details-expanded">
+                          <div class="detail-row-expanded">
+                            <v-icon size="18" color="primary" class="mr-2">mdi-medical-bag</v-icon>
+                            <div>
+                              <div class="detail-label-expanded">รูปแบบการให้บริการ</div>
+                              <div class="detail-value-expanded">{{ order.items[0]?.product?.name || '-' }}</div>
+                            </div>
+                          </div>
+                          
+                          <div class="detail-row-expanded">
+                            <v-icon size="18" color="orange" class="mr-2">mdi-alert-circle</v-icon>
+                            <div>
+                              <div class="detail-label-expanded">โรคประจำตัว/หมายเหตุ</div>
+                              <div class="detail-value-expanded">{{ order.items[0]?.product?.description || order.notes || '-' }}</div>
+                            </div>
+                          </div>
+
+                          <div class="detail-row-expanded">
+                            <v-icon size="18" color="success" class="mr-2">mdi-account-tie</v-icon>
+                            <div>
+                              <div class="detail-label-expanded">ผู้ให้บริการ</div>
+                              <div class="detail-value-expanded">{{ order.employee?.fullname || '-' }}</div>
+                            </div>
+                          </div>
+
+                          <div class="detail-row-expanded">
+                            <v-icon size="18" color="info" class="mr-2">mdi-calendar-clock</v-icon>
+                            <div>
+                              <div class="detail-label-expanded">วันที่และเวลา</div>
+                              <div class="detail-value-expanded">{{ formatDate(order.created_at) }}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </v-col>
+                      
+                      <v-col cols="12" md="4" v-if="order.uploads?.[0]?.url">
+                        <div class="text-center">
+                          <v-img
+                            :src="order.uploads[0].url"
+                            max-width="250"
+                            max-height="250"
+                            cover
+                            class="mx-auto rounded-xl elevation-4 featured-image"
+                          />
+                          <v-btn
+                            size="small"
+                            variant="tonal"
+                            prepend-icon="mdi-magnify"
+                            class="mt-3"
+                            @click="viewFullImage(order.uploads[0].url)"
+                          >
+                            ดูรูปขนาดใหญ่
+                          </v-btn>
+                        </div>
+                      </v-col>
+                    </v-row>
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+              </v-expansion-panels>
+            </div>
+
+            <div v-else class="text-center py-8">
+              <v-icon size="64" color="grey-lighten-2" class="mb-4">mdi-package-variant</v-icon>
+              <h3 class="text-h6 text-grey-darken-1 mb-2">ยังไม่มีประวัติการใช้บริการ</h3>
+              <p class="text-body-2 text-grey-darken-1">เริ่มต้นเพิ่มบริการแรกของลูกค้าท่านนี้</p>
+            </div>
+          </v-card-text>
+          </v-card>
+        </div>
+
+        <!-- Add Service Button -->
+        <div class="text-center mb-8">
+          <v-btn
+            color="primary"
+            size="large"
+            prepend-icon="mdi-plus"
+            @click="showForm = true"
+            class="add-service-btn"
+            elevation="4"
+          >
+            เพิ่มบริการใหม่
+          </v-btn>
+        </div>
+
+        <!-- Service Form -->
+        <div v-if="showForm" class="form-section">
+          <div class="section-header">
+            <v-icon size="24" color="white" class="mr-2">mdi-plus-box</v-icon>
+            <h2 class="text-h5 font-weight-bold text-white">เพิ่มรายละเอียดการบริการ</h2>
+            <v-spacer></v-spacer>
+            <v-btn icon variant="text" @click="cancelForm" color="white">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </div>
+
+          <v-card class="form-content" elevation="8">
+
+          <v-card-text class="pa-6">
+            <v-form>
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-select
+                    v-model="formData.serviceType"
+                    :items="productOptions"
+                    item-title="title"
+                    item-value="value"
+                    label="รูปแบบการให้บริการ"
+                    variant="outlined"
+                    prepend-inner-icon="mdi-medical-bag"
+                    class="mb-4"
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-select
+                    v-model="formData.employee"
+                    :items="employeeOptions"
+                    item-title="title"
+                    item-value="value"
+                    label="ชื่อผู้ให้บริการ"
+                    variant="outlined"
+                    prepend-inner-icon="mdi-account-tie"
+                    class="mb-4"
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="formData.condition"
+                    label="โรคประจำตัว"
+                    variant="outlined"
+                    prepend-inner-icon="mdi-alert-circle"
+                    class="mb-4"
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="formData.price"
+                    label="ราคา"
+                    type="number"
+                    variant="outlined"
+                    prepend-inner-icon="mdi-currency-usd"
+                    suffix="บาท"
+                    class="mb-4"
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="formData.datetime"
+                    label="วันที่ - เวลา"
+                    type="datetime-local"
+                    variant="outlined"
+                    prepend-inner-icon="mdi-calendar-clock"
+                    class="mb-4"
+                  />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-file-input
+                    v-model="formData.image"
+                    label="เพิ่มรูปภาพ"
+                    prepend-icon=""
+                    prepend-inner-icon="mdi-camera"
+                    variant="outlined"
+                    show-size
+                    accept="image/*"
+                    class="mb-4"
+                  />
+                </v-col>
+              </v-row>
+            </v-form>
+          </v-card-text>
+
+          <v-card-actions class="pa-6 pt-0">
+            <v-spacer></v-spacer>
+            <v-btn 
+              color="grey-darken-1" 
+              variant="outlined"
+              @click="cancelForm" 
+              class="mr-4"
+            >
+              ยกเลิก
+            </v-btn>
+            <v-btn 
+              color="primary" 
+              @click="submitForm" 
+              :loading="loading"
+              prepend-icon="mdi-content-save"
+            >
+              บันทึกข้อมูล
+            </v-btn>
+          </v-card-actions>
+          </v-card>
         </div>
       </div>
 
-      <v-alert v-else type="info" text class="mt-4">
-        ลูกค้าท่านนี้ยังไม่มีประวัติการสั่งซื้อ
-      </v-alert>
-    </v-card>
-
-    <!-- 🔴 ปุ่มเพิ่ม -->
-    <v-btn color="error" class="mt-8" @click="showForm = true">เพิ่ม</v-btn>
-
-    <!-- 📝 ฟอร์มเพิ่มข้อมูลบริการ -->
-    <v-card v-if="showForm" class="pa-6 mt-6" outlined>
-      <v-card-title class="text-red font-weight-bold">รายละเอียดการบริการ</v-card-title>
-
-      <v-select
-        v-model="formData.serviceType"
-        :items="productOptions"
-        item-title="title"
-        item-value="value"
-        label="รูปแบบการให้บริการ"
-        outlined
-        class="mb-4"
-      />
-
-      <v-text-field
-        v-model="formData.condition"
-        label="โรคประจำตัว"
-        outlined
-        class="mb-4"
-      />
-
-      <v-select
-        v-model="formData.employee"
-        :items="employeeOptions"
-        item-title="title"
-        item-value="value"
-        label="ชื่อผู้ให้บริการ"
-        outlined
-        class="mb-4"
-      />
-
-      <v-text-field
-        v-model="formData.price"
-        label="ราคา"
-        type="number"
-        outlined
-        class="mb-4"
-      />
-
-      <v-text-field
-        v-model="formData.datetime"
-        label="วันที่ - เวลา"
-        type="datetime-local"
-        outlined
-        class="mb-4"
-      />
-
-      <v-card class="pa-4 mt-4" outlined>
-        <v-card-title class="text-red font-weight-bold">เพิ่มรูปภาพ</v-card-title>
-        <v-file-input
-          v-model="formData.image"
-          label="Browse Files to upload"
-          prepend-icon="mdi-cloud-upload"
-          outlined
-          show-size
-          accept="image/*"
-        />
-      </v-card>
-
-      <v-row class="mt-6" justify="end">
-        <v-btn color="grey" @click="cancelForm" class="mr-4">ยกเลิก</v-btn>
-        <v-btn color="primary" @click="submitForm" :loading="loading">บันทึก</v-btn>
-      </v-row>
-    </v-card>
-  </v-container>
-
-  <v-container v-else>
-    <v-alert type="error" text>ไม่พบข้อมูลผู้ใช้</v-alert>
+      <div v-else class="text-center py-12">
+        <v-icon size="80" color="error" class="mb-4">mdi-account-alert</v-icon>
+        <h2 class="text-h5 font-weight-bold mb-2">ไม่พบข้อมูลผู้ใช้</h2>
+        <p class="text-body-1 text-grey-darken-1">กรุณาตรวจสอบรหัสลูกค้าและลองใหม่อีกครั้ง</p>
+      </div>
+    </v-container>
   </v-container>
 </template>
 
@@ -152,6 +355,7 @@ const user = ref(null)
 const orders = ref([])
 const showForm = ref(false)
 const loading = ref(false)
+const expandedOrders = ref([])
 
 const employeeOptions = ref([])
 const productOptions = ref([])
@@ -212,6 +416,23 @@ function cancelForm() {
   }
 }
 
+
+
+function getStatusChipColor(status) {
+  const statusColors = {
+    'รอดำเนินการ': 'warning',
+    'กำลังดำเนินการ': 'info',
+    'เสร็จสิ้น': 'success',
+    'ยกเลิก': 'error'
+  }
+  return statusColors[status] || 'grey'
+}
+
+function viewFullImage(imageUrl) {
+  // เปิดรูปภาพในหน้าต่างใหม่
+  window.open(imageUrl, '_blank')
+}
+
 async function submitForm() {
   loading.value = true
   try {
@@ -240,9 +461,8 @@ async function submitForm() {
     }
 
     const response = await createOrder(payload)
-        console.log("11111111", response.id)
+    console.log("Order created:", response.id)
     const orderId = response?.id
-    // console.log("")
 
     if (orderId) {
       // 📤 Upload image ถ้ามี
@@ -270,11 +490,208 @@ async function submitForm() {
 </script>
 
 <style scoped>
+.hero-section {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 3rem 0 4rem 0;
+  margin-bottom: 0;
+}
+
+.customer-section, .history-section, .form-section {
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+}
+
+.customer-content, .history-content, .form-content {
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-top: none;
+}
+
+.section-header {
+  background: #d66b63;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  border-radius: 12px 12px 0 0;
+}
+
+.info-item {
+  margin-bottom: 0.5rem;
+}
+
+.info-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 0.15rem;
+}
+
+.info-value {
+  font-size: 0.9rem;
+  color: #111827;
+  font-weight: 600;
+}
+
+.customer-avatar {
+  background: #f3f4f6;
+  border: 2px solid #e5e7eb;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.order-expansion-panel {
+  border-radius: 12px !important;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.order-expansion-panel .v-expansion-panel-title {
+  min-height: 80px !important;
+  padding: 16px !important;
+}
+
+.order-number {
+  background: #d66b63;
+  color: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.service-thumbnail {
+  border: 2px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.service-thumbnail:hover {
+  border-color: #d66b63;
+  transform: scale(1.05);
+}
+
+.no-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.service-summary h4 {
+  line-height: 1.2;
+}
+
+.service-details-expanded {
+  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-row-expanded {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.detail-label-expanded {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.detail-value-expanded {
+  color: #111827;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.featured-image {
+  border: 3px solid #d66b63;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.featured-image:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(214, 107, 99, 0.3) !important;
+}
+
+.add-service-btn {
+  border-radius: 28px;
+  padding: 0 2rem;
+  text-transform: none;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+.add-service-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(214, 107, 99, 0.3) !important;
+}
+
 .rounded-lg {
   border-radius: 12px;
 }
-.rounded-b-lg {
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
+
+
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 2rem 0 3rem 0;
+  }
+  
+  .card-header {
+    padding: 1rem 1.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .detail-label {
+    min-width: auto;
+    margin-bottom: 0.25rem;
+  }
+  
+  .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 </style>
