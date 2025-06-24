@@ -1,32 +1,26 @@
 <template>
   <v-container fluid class="pa-0">
-    <div class="hero-section">
-      <v-container>
-        <div class="d-flex align-center mb-4">
-          <v-icon size="32" color="primary" class="mr-3"
-            >mdi-account-circle</v-icon
-          >
-          <h1 class="text-h4 font-weight-bold text-grey-darken-3">
-            ข้อมูลลูกค้า
-          </h1>
-        </div>
-        <p class="text-subtitle-1 text-grey-darken-1">
-          จัดการข้อมูลและประวัติการใช้บริการ
-        </p>
-      </v-container>
-    </div>
+    <!-- Header Section -->
+    <PageHeader
+      title="ข้อมูลลูกค้า"
+      subtitle="จัดการข้อมูลและประวัติการใช้บริการ"
+      icon="mdi-account-circle"
+    />
 
-    <v-container class="mt-n8">
+    <v-container class="mt-n6">
       <div v-if="user">
-        <div class="customer-section mb-4">
+        <!-- Customer Information Section -->
+        <div class="customer-section mb-3">
           <div class="section-header">
-            <v-icon size="20" color="white" class="mr-2">mdi-account</v-icon>
-            <h2 class="text-h6 font-weight-bold text-white">ข้อมูลผู้ใช้</h2>
+            <v-icon size="18" color="white" class="mr-2">mdi-account</v-icon>
+            <h2 class="text-subtitle-1 font-weight-bold text-white">
+              ข้อมูลผู้ใช้
+            </h2>
           </div>
 
-          <v-card class="customer-content" elevation="2" rounded="lg">
-            <v-card-text class="pa-3">
-              <v-row dense>
+          <v-card class="customer-content" elevation="4">
+            <v-card-text class="pa-2">
+              <v-row>
                 <v-col cols="12" lg="9">
                   <v-row dense>
                     <v-col cols="12" sm="6" class="info-item py-1">
@@ -82,10 +76,11 @@
           </v-card>
         </div>
 
-        <div class="history-section mb-8">
+        <!-- Service History Section -->
+        <div class="history-section mb-4">
           <div class="section-header">
-            <v-icon size="24" color="white" class="mr-2">mdi-history</v-icon>
-            <h2 class="text-h5 font-weight-bold text-white">
+            <v-icon size="20" color="white" class="mr-2">mdi-history</v-icon>
+            <h2 class="text-h6 font-weight-bold text-white">
               ประวัติการใช้บริการ
             </h2>
             <v-spacer></v-spacer>
@@ -288,7 +283,7 @@
                     </v-expansion-panel-text>
                   </v-expansion-panel>
                 </v-expansion-panels>
-
+{{ totalItems }}
                 <PaginationToolbar
                   v-model="page"
                   :total-items="totalItems"
@@ -312,7 +307,8 @@
           </v-card>
         </div>
 
-        <div class="text-center mb-8">
+        <!-- Add Service Button -->
+        <div class="text-center mb-4">
           <v-btn
             color="primary"
             size="large"
@@ -327,8 +323,8 @@
 
         <div v-if="showForm" class="form-section">
           <div class="section-header">
-            <v-icon size="24" color="white" class="mr-2">mdi-plus-box</v-icon>
-            <h2 class="text-h5 font-weight-bold text-white">
+            <v-icon size="20" color="white" class="mr-2">mdi-plus-box</v-icon>
+            <h2 class="text-h6 font-weight-bold text-white">
               เพิ่มรายละเอียดการบริการ
             </h2>
             <v-spacer></v-spacer>
@@ -354,7 +350,7 @@
                       class="mb-4"
                     />
                   </v-col>
-                   <v-col cols="12" md="6">
+                  <v-col cols="12" md="6">
                     <v-select
                       v-model="formData.employee"
                       :items="employeeOptions"
@@ -461,8 +457,9 @@ import {
 } from "@/services/orderService";
 import { searchEmployees } from "@/services/employeeService";
 import { searchProducts } from "@/services/productService";
-import PaginationToolbar from "@/components/table/PaginationToolbar.vue";
 import { showSuccess, showErr } from "@/lib/snackbar.js";
+import PageHeader from "@/components/PageHeader.vue";
+import PaginationToolbar from "@/components/table/PaginationToolbar.vue";
 
 const route = useRoute();
 const user = ref(null);
@@ -477,7 +474,7 @@ const productOptions = ref([]);
 
 // ✅ Pagination State
 const page = ref(1);
-const pageSize = ref(10);
+const pageSize = ref(5);
 const totalItems = ref(0);
 
 // ✅ customerId needs to be a ref
@@ -517,7 +514,7 @@ function openConfirmDialog(orderId) {
 async function fetchOrdersByCustomer(id) {
   try {
     const res = await searchOrders(
-      { customerId: id },
+      { customerId: id, status:'completed' },
       page.value,
       pageSize.value
     );
@@ -705,13 +702,6 @@ async function submitForm() {
 </script>
 
 <style scoped>
-.hero-section {
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 3rem 0 4rem 0;
-  margin-bottom: 0;
-}
-
 .customer-section,
 .history-section,
 .form-section {
@@ -730,14 +720,14 @@ async function submitForm() {
 
 .section-header {
   background: #d66b63;
-  padding: 1rem 1.5rem;
+  padding: 0.75rem 1.25rem;
   display: flex;
   align-items: center;
   border-radius: 12px 12px 0 0;
 }
 
 .info-item {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .info-label {
@@ -757,8 +747,8 @@ async function submitForm() {
   background: #f3f4f6;
   border: 2px solid #e5e7eb;
   border-radius: 50%;
-  width: 80px;
-  height: 80px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
