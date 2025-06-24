@@ -1,28 +1,66 @@
 <template>
   <v-row justify="center">
     <v-col cols="12" class="pa-2">
-      <v-form ref="formRef" @submit.prevent="submitForm">
+      <v-form ref="formRef" @submit.prevent="confirmDialog = true">
         <!-- ข้อมูลส่วนตัว -->
         <v-card class="pa-6 mb-6" outlined>
-          <v-card-title class="text-red font-weight-bold">ข้อมูลส่วนตัว</v-card-title>
+          <v-card-title class="text-red font-weight-bold"
+            >ข้อมูลส่วนตัว</v-card-title
+          >
           <v-row>
             <v-col cols="12" md="6">
-              <v-text-field label="ชื่อ-สกุล" v-model="form.fullName" :rules="[requiredRule]" variant="outlined" />
+              <v-text-field
+                label="ชื่อ-สกุล"
+                v-model="form.fullName"
+                :rules="[requiredRule]"
+                variant="outlined"
+                prepend-inner-icon="mdi-account"
+              />
             </v-col>
             <v-col cols="12" md="6">
-              <v-text-field label="ชื่อเล่น" v-model="form.nickname" :rules="[requiredRule]" variant="outlined" />
+              <v-text-field
+                label="ชื่อเล่น"
+                v-model="form.nickname"
+                :rules="[requiredRule]"
+                variant="outlined"
+                prepend-inner-icon="mdi-emoticon"
+              />
             </v-col>
             <v-col cols="12" md="6">
-              <v-text-field label="Facebook" v-model="form.facebook" :rules="[requiredRule]" variant="outlined" />
+              <v-text-field
+                label="Facebook"
+                v-model="form.facebook"
+                :rules="[requiredRule]"
+                variant="outlined"
+                prepend-inner-icon="mdi-facebook"
+              />
             </v-col>
             <v-col cols="12" md="6">
-              <v-text-field label="Line" v-model="form.line" :rules="[requiredRule]" variant="outlined" />
+              <v-text-field
+                label="Line"
+                v-model="form.line"
+                :rules="[requiredRule]"
+                variant="outlined"
+                prepend-inner-icon="mdi-chat"
+              />
             </v-col>
             <v-col cols="12" md="6">
-              <v-text-field label="ที่อยู่" v-model="form.address" :rules="[requiredRule]" variant="outlined" />
+              <v-text-field
+                label="ที่อยู่"
+                v-model="form.address"
+                :rules="[requiredRule]"
+                variant="outlined"
+                prepend-inner-icon="mdi-home"
+              />
             </v-col>
             <v-col cols="12" md="6">
-              <v-text-field label="เบอร์โทร" v-model="form.phone" :rules="[requiredRule]" variant="outlined" />
+              <v-text-field
+                label="เบอร์โทร"
+                v-model="form.phone"
+                :rules="[requiredRule]"
+                variant="outlined"
+                prepend-inner-icon="mdi-phone"
+              />
             </v-col>
             <v-col cols="12" md="6">
               <v-text-field
@@ -40,7 +78,9 @@
 
         <!-- รายละเอียดการบริการ -->
         <v-card class="pa-6 mb-6" outlined>
-          <v-card-title class="text-red font-weight-bold">รายละเอียดการบริการ</v-card-title>
+          <v-card-title class="text-red font-weight-bold"
+            >รายละเอียดการบริการ</v-card-title
+          >
           <v-row>
             <v-col cols="12">
               <v-select
@@ -52,6 +92,7 @@
                 placeholder="กรุณาระบุคะ"
                 :rules="[requiredRule]"
                 variant="outlined"
+                prepend-inner-icon="mdi-cog"
                 clearable
               />
             </v-col>
@@ -61,6 +102,7 @@
                 v-model="form.medicalCondition"
                 :rules="[requiredRule]"
                 variant="outlined"
+                prepend-inner-icon="mdi-heart-pulse"
               />
             </v-col>
             <v-col cols="12">
@@ -70,6 +112,7 @@
                 type="number"
                 :rules="[requiredRule]"
                 variant="outlined"
+                prepend-inner-icon="mdi-cash"
               />
             </v-col>
             <v-col cols="12">
@@ -82,6 +125,7 @@
                 placeholder="กรุณาระบุคะ"
                 :rules="[requiredRule]"
                 variant="outlined"
+                prepend-inner-icon="mdi-account-badge"
                 clearable
                 density="compact"
               />
@@ -93,7 +137,7 @@
                 type="date"
                 :rules="[requiredRule]"
                 variant="outlined"
-                prepend-inner-icon="mdi-calendar"
+                prepend-inner-icon="mdi-calendar-clock"
                 density="compact"
               />
             </v-col>
@@ -101,29 +145,54 @@
         </v-card>
 
         <!-- อัปโหลดรูปภาพ (ไม่บังคับ) -->
-<v-card class="pa-6 mb-6" outlined>
-  <v-card-title class="text-red font-weight-bold">เพิ่มรูปภาพ</v-card-title>
-  <v-row justify="center">
-    <v-col cols="12" md="6">
-      <v-file-input
-        v-model="form.image"
-        accept="image/*"
-        label="เลือกรูปภาพ"
-        prepend-icon="mdi-cloud-upload"
-        show-size
-        clearable
-        variant="outlined"
-      />
-    </v-col>
-  </v-row>
-</v-card>
+        <v-card class="pa-6 mb-6" outlined>
+          <v-card-title class="text-red font-weight-bold"
+            >เพิ่มรูปภาพ</v-card-title
+          >
+          <v-row justify="center">
+            <v-col cols="12" md="6">
+              <v-file-input
+                v-model="form.image"
+                accept="image/*"
+                label="เลือกรูปภาพ"
+                prepend-icon="mdi-cloud-upload"
+                show-size
+                clearable
+                variant="outlined"
+              />
+            </v-col>
+          </v-row>
+        </v-card>
 
         <!-- ปุ่มถัดไป -->
         <v-card-actions class="justify-center">
-          <v-btn class="next-button" type="submit" variant="outlined">ถัดไป</v-btn>
+          <v-btn class="next-button" type="submit" variant="outlined"
+            >ถัดไป</v-btn
+          >
         </v-card-actions>
       </v-form>
     </v-col>
+
+    <!-- ✅ Dialog ยืนยันการบันทึก -->
+    <v-dialog v-model="confirmDialog" max-width="700" rounded="xl">
+      <v-card rounded="xl" class="pa-3">
+        <v-card-title class="text-h6">ยืนยันการบันทึก</v-card-title>
+        <v-card-text>คุณต้องการบันทึกข้อมูลใช่หรือไม่?</v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            text
+            @click="confirmDialog = false"
+            color="error"
+            variant="elevated"
+            >ยกเลิก</v-btn
+          >
+          <v-btn variant="elevated" color="primary" @click="confirmSubmit"
+            >ยืนยัน</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-row>
 </template>
 
@@ -132,10 +201,8 @@ import { ref, onMounted } from "vue";
 import { searchProducts } from "@/services/productService";
 import { searchEmployees } from "@/services/employeeService";
 
-// Emit to parent
 const emit = defineEmits(["submit"]);
 
-// Form data
 const form = ref({
   fullName: "",
   nickname: "",
@@ -152,11 +219,10 @@ const form = ref({
   image: null,
 });
 
-// Validation setup
 const formRef = ref();
+const confirmDialog = ref(false); // ✅ Dialog toggle
 const requiredRule = (v) => !!v || "จำเป็นต้องกรอกข้อมูล";
 
-// Options
 const productOptions = ref([]);
 const employeeOptions = ref([]);
 
@@ -182,6 +248,11 @@ onMounted(async () => {
   }
 });
 
+async function confirmSubmit() {
+  confirmDialog.value = false;
+  await submitForm();
+}
+
 async function submitForm() {
   const { valid } = await formRef.value.validate();
   if (!valid) {
@@ -192,15 +263,6 @@ async function submitForm() {
   console.log("📤 ส่งข้อมูล:", form.value);
   emit("submit", form.value);
 }
-
-// Handle file upload
-// function onFileChange(e) {
-//   const file = e.target.files[0];
-//   if (file) {
-//     form.value.image = file;
-//     console.log("📸 รูปที่เลือก:", file.name);
-//   }
-// }
 </script>
 
 <style scoped>

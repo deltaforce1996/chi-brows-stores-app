@@ -4,10 +4,16 @@
     <div class="hero-section">
       <v-container>
         <div class="d-flex align-center mb-4">
-          <v-icon size="32" color="primary" class="mr-3">mdi-account-group</v-icon>
-          <h1 class="text-h4 font-weight-bold text-grey-darken-3">รายชื่อลูกค้า</h1>
+          <v-icon size="32" color="primary" class="mr-3"
+            >mdi-account-group</v-icon
+          >
+          <h1 class="text-h4 font-weight-bold text-grey-darken-3">
+            รายชื่อลูกค้า
+          </h1>
         </div>
-        <p class="text-subtitle-1 text-grey-darken-1">ค้นหาและจัดการข้อมูลลูกค้าทั้งหมด</p>
+        <p class="text-subtitle-1 text-grey-darken-1">
+          ค้นหาและจัดการข้อมูลลูกค้าทั้งหมด
+        </p>
       </v-container>
     </div>
 
@@ -18,7 +24,7 @@
           <v-icon size="24" color="white" class="mr-2">mdi-magnify</v-icon>
           <h2 class="text-h5 font-weight-bold text-white">ค้นหาลูกค้า</h2>
         </div>
-        
+
         <v-card class="search-content" elevation="8">
           <v-card-text class="pa-6">
             <v-text-field
@@ -33,9 +39,9 @@
             />
 
             <div class="text-right">
-              <v-btn 
-                color="primary" 
-                @click="submitSearch" 
+              <v-btn
+                color="primary"
+                @click="submitSearch"
                 :loading="loading"
                 prepend-icon="mdi-magnify"
                 class="search-btn"
@@ -50,7 +56,9 @@
       <!-- Results Section -->
       <div class="results-section mb-8">
         <div class="section-header">
-          <v-icon size="24" color="white" class="mr-2">mdi-account-multiple</v-icon>
+          <v-icon size="24" color="white" class="mr-2"
+            >mdi-account-multiple</v-icon
+          >
           <h2 class="text-h5 font-weight-bold text-white">ผลการค้นหา</h2>
           <v-spacer></v-spacer>
           <v-chip color="white" variant="tonal" size="small">
@@ -61,7 +69,11 @@
         <v-card class="results-content" elevation="8">
           <v-card-text class="pa-6">
             <div v-if="customers.length">
-              <v-expansion-panels v-model="expandedCustomers" multiple class="mb-4">
+              <v-expansion-panels
+                v-model="expandedCustomers"
+                multiple
+                class="mb-4"
+              >
                 <v-expansion-panel
                   v-for="(customer, index) in customers"
                   :key="customer.id"
@@ -75,24 +87,26 @@
                       </v-col>
                       <v-col cols="2" md="1" class="d-flex justify-center">
                         <div class="customer-avatar-small">
-                          <v-icon color="grey-lighten-1" size="24">mdi-account</v-icon>
+                          <v-icon color="grey-lighten-1" size="24"
+                            >mdi-account</v-icon
+                          >
                         </div>
                       </v-col>
                       <v-col cols="8" md="8" class="pl-4">
                         <div class="customer-summary">
                           <h4 class="text-subtitle-1 font-weight-bold mb-1">
-                            {{ customer.fullname || 'ไม่ระบุชื่อ' }}
+                            {{ customer.fullname || "ไม่ระบุชื่อ" }}
                           </h4>
                           <div class="d-flex align-center gap-2 mb-1">
                             <v-icon size="14" color="primary">mdi-phone</v-icon>
                             <span class="text-body-2 text-grey-darken-1">
-                              {{ customer.tel || '-' }}
+                              {{ customer.tel || "-" }}
                             </span>
                           </div>
                           <div class="d-flex align-center gap-2">
                             <v-icon size="14" color="info">mdi-facebook</v-icon>
                             <span class="text-body-2 text-grey-darken-1">
-                              {{ customer.facebook || '-' }}
+                              {{ customer.facebook || "-" }}
                             </span>
                           </div>
                         </div>
@@ -116,50 +130,83 @@
                       <v-col cols="12" md="8">
                         <div class="customer-details-expanded">
                           <div class="detail-row-expanded">
-                            <v-icon size="18" color="primary" class="mr-2">mdi-account</v-icon>
+                            <v-icon size="18" color="primary" class="mr-2"
+                              >mdi-account</v-icon
+                            >
                             <div>
-                              <div class="detail-label-expanded">ชื่อ-นามสกุล</div>
-                              <div class="detail-value-expanded">{{ customer.fullname || '-' }}</div>
-                            </div>
-                          </div>
-                          
-                          <div class="detail-row-expanded">
-                            <v-icon size="18" color="success" class="mr-2">mdi-phone</v-icon>
-                            <div>
-                              <div class="detail-label-expanded">เบอร์โทรศัพท์</div>
-                              <div class="detail-value-expanded">{{ customer.tel || '-' }}</div>
+                              <div class="detail-label-expanded">
+                                ชื่อ-นามสกุล
+                              </div>
+                              <div class="detail-value-expanded">
+                                {{ customer.fullname || "-" }}
+                              </div>
                             </div>
                           </div>
 
                           <div class="detail-row-expanded">
-                            <v-icon size="18" color="info" class="mr-2">mdi-facebook</v-icon>
+                            <v-icon size="18" color="success" class="mr-2"
+                              >mdi-phone</v-icon
+                            >
+                            <div>
+                              <div class="detail-label-expanded">
+                                เบอร์โทรศัพท์
+                              </div>
+                              <div class="detail-value-expanded">
+                                {{ customer.tel || "-" }}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="detail-row-expanded">
+                            <v-icon size="18" color="info" class="mr-2"
+                              >mdi-facebook</v-icon
+                            >
                             <div>
                               <div class="detail-label-expanded">Facebook</div>
-                              <div class="detail-value-expanded">{{ customer.facebook || '-' }}</div>
+                              <div class="detail-value-expanded">
+                                {{ customer.facebook || "-" }}
+                              </div>
                             </div>
                           </div>
 
                           <div class="detail-row-expanded" v-if="customer.line">
-                            <v-icon size="18" color="success" class="mr-2">mdi-message-text</v-icon>
+                            <v-icon size="18" color="success" class="mr-2"
+                              >mdi-message-text</v-icon
+                            >
                             <div>
                               <div class="detail-label-expanded">Line ID</div>
-                              <div class="detail-value-expanded">{{ customer.line }}</div>
+                              <div class="detail-value-expanded">
+                                {{ customer.line }}
+                              </div>
                             </div>
                           </div>
 
-                          <div class="detail-row-expanded" v-if="customer.address">
-                            <v-icon size="18" color="orange" class="mr-2">mdi-map-marker</v-icon>
+                          <div
+                            class="detail-row-expanded"
+                            v-if="customer.address"
+                          >
+                            <v-icon size="18" color="orange" class="mr-2"
+                              >mdi-map-marker</v-icon
+                            >
                             <div>
                               <div class="detail-label-expanded">ที่อยู่</div>
-                              <div class="detail-value-expanded">{{ customer.address }}</div>
+                              <div class="detail-value-expanded">
+                                {{ customer.address }}
+                              </div>
                             </div>
                           </div>
                         </div>
                       </v-col>
-                      
-                      <v-col cols="12" md="4" class="d-flex flex-column align-center">
+
+                      <v-col
+                        cols="12"
+                        md="4"
+                        class="d-flex flex-column align-center"
+                      >
                         <div class="customer-avatar-large mb-4">
-                          <v-icon size="60" color="grey-lighten-1">mdi-account-circle</v-icon>
+                          <v-icon size="60" color="grey-lighten-1"
+                            >mdi-account-circle</v-icon
+                          >
                         </div>
                         <v-btn
                           color="primary"
@@ -174,12 +221,23 @@
                   </v-expansion-panel-text>
                 </v-expansion-panel>
               </v-expansion-panels>
+
+              <PaginationToolbar
+                v-model="page"
+                :total-items="totalItems"
+                :page-size="pageSize"
+                @change="fetchCustomers(searchText)"
+              />
             </div>
 
             <div v-else class="text-center py-8">
-              <v-icon size="64" color="grey-lighten-2" class="mb-4">mdi-account-search</v-icon>
+              <v-icon size="64" color="grey-lighten-2" class="mb-4"
+                >mdi-account-search</v-icon
+              >
               <h3 class="text-h6 text-grey-darken-1 mb-2">ไม่พบข้อมูลลูกค้า</h3>
-              <p class="text-body-2 text-grey-darken-1">ลองค้นหาด้วยคำอื่น หรือเพิ่มลูกค้าใหม่</p>
+              <p class="text-body-2 text-grey-darken-1">
+                ลองค้นหาด้วยคำอื่น หรือเพิ่มลูกค้าใหม่
+              </p>
             </div>
           </v-card-text>
         </v-card>
@@ -189,43 +247,59 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { searchCustomers } from "@/services/customerService";
+import PaginationToolbar from "@/components/table/PaginationToolbar.vue";
 
 const router = useRouter();
 
+// ✅ State หลัก
 const searchText = ref("");
 const customers = ref([]);
-const loading = ref(false);
 const expandedCustomers = ref([]);
+const loading = ref(false);
 
+// ✅ Pagination State
+const page = ref(1);
+const pageSize = ref(10);
+const totalItems = ref(0);
+
+// ✅ โหลดข้อมูลลูกค้าพร้อม Pagination
 async function fetchCustomers(query = "") {
   loading.value = true;
   try {
-    const res = await searchCustomers(query);
+    const res = await searchCustomers(query, page.value, pageSize.value);
     customers.value = res.items;
+    totalItems.value = res.pagination?.totalItems || res.items.length || 0; // ✅ ใช้ค่าจาก pagination
   } catch (err) {
     console.error("❌ โหลดข้อมูลลูกค้าไม่สำเร็จ:", err);
     customers.value = [];
+    totalItems.value = 0;
   } finally {
     loading.value = false;
   }
 }
 
+// ✅ เรียกเมื่อกดปุ่มค้นหา หรือ Enter
 function submitSearch() {
-  fetchCustomers(searchText.value || "");
+  page.value = 1; // รีเซ็ตกลับหน้า 1 เมื่อค้นหาใหม่
+  fetchCustomers(searchText.value);
 }
 
-// ✅ เรียกตอนเข้า
-onMounted(() => {
-  fetchCustomers("");
-});
-
-// ✅ กดปุ่มเพื่อ navigate ไปหน้า PrefillCustomer/:id
+// ✅ ไปหน้ารายละเอียดลูกค้า
 function viewDetails(customer) {
   router.push(`/PrefillCustomer/${customer.id}`);
 }
+
+watch(page, () => {
+  fetchCustomers(searchText.value)
+})
+
+// ✅ โหลดข้อมูลครั้งแรก
+onMounted(() => {
+  fetchCustomers();
+});
 </script>
 
 <style scoped>
@@ -236,12 +310,14 @@ function viewDetails(customer) {
   margin-bottom: 0;
 }
 
-.search-section, .results-section {
+.search-section,
+.results-section {
   border-radius: 16px 16px 0 0;
   overflow: hidden;
 }
 
-.search-content, .results-content {
+.search-content,
+.results-content {
   border-radius: 0 0 16px 16px;
   overflow: hidden;
   border: 1px solid #e5e7eb;
@@ -355,7 +431,8 @@ function viewDetails(customer) {
   padding: 0 2rem;
 }
 
-.view-btn:hover, .view-details-btn:hover {
+.view-btn:hover,
+.view-details-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(214, 107, 99, 0.3) !important;
 }
@@ -383,18 +460,18 @@ function viewDetails(customer) {
   .hero-section {
     padding: 2rem 0 3rem 0;
   }
-  
+
   .section-header {
     padding: 1rem 1.5rem;
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .customer-expansion-panel .v-expansion-panel-title {
     min-height: auto !important;
   }
-  
+
   .view-btn {
     width: 100%;
     margin-top: 0.5rem;
