@@ -1,10 +1,4 @@
-import {
-  IsString,
-  IsEmail,
-  IsDateString,
-  IsOptional,
-  IsEnum,
-} from 'class-validator';
+import { IsString, IsDateString, IsOptional, IsEnum } from 'class-validator';
 import { UserStatus } from 'src/utils/user-status.enum';
 
 export class CreateEmployeeDto {
@@ -20,8 +14,9 @@ export class CreateEmployeeDto {
   @IsString()
   tel: string;
 
-  @IsEmail()
-  email: string;
+  @IsOptional()
+  @IsString()
+  email?: string;
 
   @IsDateString()
   birthday: string;
@@ -37,7 +32,7 @@ export class UpdateEmployeeDto {
   tel?: string;
 
   @IsOptional()
-  @IsEmail()
+  @IsString()
   email?: string;
 
   @IsOptional()

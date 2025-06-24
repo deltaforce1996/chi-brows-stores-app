@@ -141,7 +141,7 @@ export class OrderService {
         order.employee_id = employee.id;
         order.employee = employee;
       }
-      order.status = OrderStatus.PENDING;
+      order.status = OrderStatus.COMPLETED;
       order.total_amount = price;
       order.notes = notes;
       order.items = orderItems;
@@ -170,10 +170,28 @@ export class OrderService {
     page = 1,
     pageSize = 10,
     baseUrl: string,
+    sortBy: string = 'created_at',
+    sortOrder: 'ASC' | 'DESC' = 'DESC',
   ): Promise<{ data: OrderEntity[]; total: number }> {
+    // Validate sortBy field to prevent SQL injection
+    const allowedSortFields = [
+      'created_at',
+      'updated_at',
+      'id',
+      'total_amount',
+      'status',
+      'date',
+    ];
+    const validSortBy = allowedSortFields.includes(sortBy)
+      ? sortBy
+      : 'created_at';
+    const validSortOrder = ['ASC', 'DESC'].includes(sortOrder)
+      ? sortOrder
+      : 'DESC';
+
     const [data, total] = await this.orderRepository.findAndCount({
       relations: ['customer', 'employee', 'items', 'items.product'],
-      order: { created_at: 'DESC' },
+      order: { [validSortBy]: validSortOrder },
       skip: (page - 1) * pageSize,
       take: pageSize,
     });
@@ -252,7 +270,25 @@ export class OrderService {
     page = 1,
     pageSize = 10,
     baseUrl: string,
+    sortBy: string = 'created_at',
+    sortOrder: 'ASC' | 'DESC' = 'DESC',
   ): Promise<{ data: OrderEntity[]; total: number }> {
+    // Validate sortBy field to prevent SQL injection
+    const allowedSortFields = [
+      'created_at',
+      'updated_at',
+      'id',
+      'total_amount',
+      'status',
+      'date',
+    ];
+    const validSortBy = allowedSortFields.includes(sortBy)
+      ? sortBy
+      : 'created_at';
+    const validSortOrder = ['ASC', 'DESC'].includes(sortOrder)
+      ? sortOrder
+      : 'DESC';
+
     const queryBuilder = this.dataSource
       .getRepository(OrderEntity)
       .createQueryBuilder('order');
@@ -295,7 +331,7 @@ export class OrderService {
     }
 
     queryBuilder
-      .orderBy('order.created_at', 'DESC')
+      .orderBy(`order.${validSortBy}`, validSortOrder)
       .skip((page - 1) * pageSize)
       .take(pageSize);
 

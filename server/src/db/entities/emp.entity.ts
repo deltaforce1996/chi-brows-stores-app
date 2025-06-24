@@ -22,8 +22,8 @@ export class EmployeeEntity {
   @Column({ type: 'date' })
   birthday: Date;
 
-  @Column({ unique: true })
-  email: string;
+  @Column({ unique: true, nullable: true })
+  email?: string;
 
   @CreateDateColumn()
   created_at: Date;

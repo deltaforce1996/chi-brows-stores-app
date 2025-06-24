@@ -1,10 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UseFilters } from '@nestjs/common';
 import { EmployeeService } from '../employee/employee.service';
 import { JwtService } from '@nestjs/jwt';
 import { EmployeeBase } from 'src/types/employee.interface';
 import { AuthorizedExcept } from 'src/errors/exception.error';
+import {
+  AuthorizedExceptFilter,
+  BadRequestExceptFilter,
+  ForbiddenExceptionFilter,
+  ResultNotFoundExceptFilter,
+} from 'src/errors/filter.error';
 
 @Injectable()
+@UseFilters(
+  new ResultNotFoundExceptFilter(),
+  new BadRequestExceptFilter(),
+  new AuthorizedExceptFilter(),
+  new ForbiddenExceptionFilter(),
+)
 export class AuthService {
   constructor(
     private readonly employeeService: EmployeeService,
