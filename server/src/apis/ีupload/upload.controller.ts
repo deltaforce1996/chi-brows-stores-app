@@ -67,7 +67,8 @@ export class UploadController {
 
   @Get('owner/:ownerId')
   async getByOwner(@Param('ownerId') ownerId: string, @Req() req: Request) {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl =
+      process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
     const files = await this.uploadService.findByOwner(ownerId, baseUrl);
     // return { success: true, files };
     return new Successfully<any>('Find successful', files);
