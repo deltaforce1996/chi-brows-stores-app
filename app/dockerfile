@@ -1,0 +1,41 @@
+# === Step 1: Build the Vue app ===
+FROM node:18 AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy package.json and install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy the rest of the app
+COPY . .
+
+# Allow build-time injection of VITE_API_BASE_URL
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
+# Build the static files
+RUN npm run build
+
+
+# === Step 2: Serve with Nginx ===
+FROM nginx:1.27-alpine
+
+# Set working directory
+WORKDIR /usr/share/nginx/html
+
+# Copy built app from builder
+COPY --from=builder /app/dist .
+
+# Copy custom nginx config for history mode + logs
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Ensure log directory exists (optional for volume mapping)
+RUN mkdir -p /var/log/nginx
+
+# Expose HTTP port
+EXPOSE 80
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
