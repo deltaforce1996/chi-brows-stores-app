@@ -1,27 +1,23 @@
 <template>
   <v-container fluid class="pa-0">
     <!-- Header Section -->
-    <div class="hero-section">
-      <v-container>
-        <div class="d-flex align-center mb-4">
-          <v-icon size="32" color="primary" class="mr-3">mdi-account-circle</v-icon>
-          <h1 class="text-h4 font-weight-bold text-grey-darken-3">ข้อมูลลูกค้า</h1>
-        </div>
-        <p class="text-subtitle-1 text-grey-darken-1">จัดการข้อมูลและประวัติการใช้บริการ</p>
-      </v-container>
-    </div>
+    <PageHeader
+      title="ข้อมูลลูกค้า"
+      subtitle="จัดการข้อมูลและประวัติการใช้บริการ"
+      icon="mdi-account-circle"
+    />
 
-    <v-container class="mt-n8">
+    <v-container class="mt-n6">
       <div v-if="user">
         <!-- Customer Information Section -->
-        <div class="customer-section mb-4">
+        <div class="customer-section mb-3">
           <div class="section-header">
-            <v-icon size="20" color="white" class="mr-2">mdi-account</v-icon>
-            <h2 class="text-h6 font-weight-bold text-white">ข้อมูลผู้ใช้</h2>
+            <v-icon size="18" color="white" class="mr-2">mdi-account</v-icon>
+            <h2 class="text-subtitle-1 font-weight-bold text-white">ข้อมูลผู้ใช้</h2>
           </div>
           
           <v-card class="customer-content" elevation="4">
-            <v-card-text class="pa-4">
+            <v-card-text class="pa-2">
               <v-row>
                 <v-col cols="12" lg="9">
                   <v-row>
@@ -70,10 +66,10 @@
         </div>
 
         <!-- Service History Section -->
-        <div class="history-section mb-8">
+        <div class="history-section mb-4">
           <div class="section-header">
-            <v-icon size="24" color="white" class="mr-2">mdi-history</v-icon>
-            <h2 class="text-h5 font-weight-bold text-white">ประวัติการใช้บริการ</h2>
+            <v-icon size="20" color="white" class="mr-2">mdi-history</v-icon>
+            <h2 class="text-h6 font-weight-bold text-white">ประวัติการใช้บริการ</h2>
             <v-spacer></v-spacer>
             <v-chip color="white" variant="tonal" size="small">
               {{ orders.length }} รายการ
@@ -212,7 +208,7 @@
         </div>
 
         <!-- Add Service Button -->
-        <div class="text-center mb-8">
+        <div class="text-center mb-4">
           <v-btn
             color="primary"
             size="large"
@@ -228,8 +224,8 @@
         <!-- Service Form -->
         <div v-if="showForm" class="form-section">
           <div class="section-header">
-            <v-icon size="24" color="white" class="mr-2">mdi-plus-box</v-icon>
-            <h2 class="text-h5 font-weight-bold text-white">เพิ่มรายละเอียดการบริการ</h2>
+            <v-icon size="20" color="white" class="mr-2">mdi-plus-box</v-icon>
+            <h2 class="text-h6 font-weight-bold text-white">เพิ่มรายละเอียดการบริการ</h2>
             <v-spacer></v-spacer>
             <v-btn icon variant="text" @click="cancelForm" color="white">
               <v-icon>mdi-close</v-icon>
@@ -349,6 +345,7 @@ import { useRoute } from 'vue-router'
 import { searchOrders, createOrder, uploadOrderImage } from '@/services/orderService'
 import { searchEmployees } from '@/services/employeeService'
 import { searchProducts } from '@/services/productService'
+import PageHeader from '@/components/PageHeader.vue'
 
 const route = useRoute()
 const user = ref(null)
@@ -490,12 +487,7 @@ async function submitForm() {
 </script>
 
 <style scoped>
-.hero-section {
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 3rem 0 4rem 0;
-  margin-bottom: 0;
-}
+
 
 .customer-section, .history-section, .form-section {
   border-radius: 12px 12px 0 0;
@@ -511,14 +503,14 @@ async function submitForm() {
 
 .section-header {
   background: #d66b63;
-  padding: 1rem 1.5rem;
+  padding: 0.75rem 1.25rem;
   display: flex;
   align-items: center;
   border-radius: 12px 12px 0 0;
 }
 
 .info-item {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .info-label {
@@ -538,8 +530,8 @@ async function submitForm() {
   background: #f3f4f6;
   border: 2px solid #e5e7eb;
   border-radius: 50%;
-  width: 80px;
-  height: 80px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -1,7 +1,15 @@
 <template>
-  <v-container fluid>
+  <v-container fluid class="pa-0">
+    <!-- Header Section -->
+    <PageHeader
+      title="เพิ่มลูกค้าใหม่"
+      subtitle="กรอกข้อมูลลูกค้าและรายละเอียดการบริการ"
+      icon="mdi-account-plus"
+    />
 
-    <formCustomer @submit="handleSubmit" />
+    <v-container class="mt-n6">
+      <formCustomer @submit="handleSubmit" />
+    </v-container>
   </v-container>
 </template>
 
@@ -10,6 +18,7 @@ import formCustomer from '../components/froms/fromCustomer.vue'
 import { createOrderWithCustomer, uploadOrderImage } from '@/services/orderService'
 import { showSuccess, showErr } from "@/lib/snackbar.js";
 import { useRouter } from 'vue-router'
+import PageHeader from '@/components/PageHeader.vue'
 
 const router = useRouter()
 
