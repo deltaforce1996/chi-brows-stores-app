@@ -4,7 +4,10 @@ import { EmployeeEntity } from 'src/db/entities/emp.entity';
 import { EmployeeBase } from 'src/types/employee.interface';
 import { CreateEmployeeDto, UpdateEmployeeDto } from './dtos/employee.dto';
 import * as bcrypt from 'bcrypt';
-import { ResultNotFoundExcept } from 'src/errors/exception.error';
+import {
+  BadRequestExcept,
+  ResultNotFoundExcept,
+} from 'src/errors/exception.error';
 import { Repository } from 'typeorm';
 import { UserStatus } from 'src/utils/user-status.enum';
 
@@ -21,6 +24,17 @@ export class EmployeeService {
       .orderBy('emp.id', 'DESC')
       .limit(1)
       .getOne();
+
+    // ตรวจสอบ username หรือ email ซ้ำ
+    const exists = await this.employeeRepo.findOne({
+      where: [
+        { username: dto.username },
+        ...(dto.email ? [{ email: dto.email }] : []),
+      ],
+    });
+    if (exists) {
+      throw new BadRequestExcept('Username or email already exists.');
+    }
 
     const nextId = this.generateNextId(last?.id);
 
@@ -44,7 +58,7 @@ export class EmployeeService {
     if (!emp) throw new ResultNotFoundExcept('Employee not found.');
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...rest } = emp as EmployeeBase;
-    return rest;
+    return rest as EmployeeBase;
   }
 
   async searchUser(
@@ -109,6 +123,6 @@ export class EmployeeService {
     const saved = await this.employeeRepo.save(updated);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...rest } = saved;
-    return rest;
+    return rest as EmployeeBase;
   }
 }
