@@ -6,23 +6,23 @@ export class CustEntity {
   @PrimaryColumn()
   id: string; // ex. CUST0001
 
-  @Column({ nullable: true, default: null })
-  tel: string | null;
+  @Column({ type: 'varchar', nullable: true, default: null })
+  tel: string;
 
-  @Column({ nullable: true, default: null })
-  line: string | null;
+  @Column({ type: 'varchar', nullable: true, default: null })
+  line: string;
 
-  @Column({ nullable: true, default: null })
-  facebook: string | null;
+  @Column({ type: 'varchar', nullable: true, default: null })
+  facebook: string;
 
-  @Column({ nullable: true, default: null })
-  fullname: string | null;
+  @Column({ type: 'varchar', nullable: true, default: null })
+  fullname: string;
 
-  @Column({ nullable: true, default: null })
-  nickname: string | null;
+  @Column({ type: 'varchar', nullable: true, default: null })
+  nickname: string;
 
-  @Column({ nullable: true, default: null })
-  address: string | null;
+  @Column({ type: 'varchar', nullable: true, default: null })
+  address: string;
 
   @Column({ type: 'date', nullable: true, default: null })
   birthday: Date | null;

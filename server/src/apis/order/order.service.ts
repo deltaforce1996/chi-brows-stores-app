@@ -272,7 +272,7 @@ export class OrderService {
     pageSize = 10,
     baseUrl: string,
     sortBy: string = 'created_at',
-    sortOrder: 'ASC' | 'DESC' = 'DESC',
+    sortOrder: 'ASC' | 'DESC' = 'ASC',
   ): Promise<{ data: OrderEntity[]; total: number }> {
     // Validate sortBy field to prevent SQL injection
     const allowedSortFields = [
