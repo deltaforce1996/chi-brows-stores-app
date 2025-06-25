@@ -50,7 +50,8 @@ export class OrderController {
     @Body() createOrderDto: CreateOrderDto,
     @Req() req: Request,
   ): Promise<any> {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl =
+      process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
     const result = await this.orderService.create(createOrderDto, baseUrl);
     return new Successfully<any>('Register successfully.', result);
   }
@@ -61,7 +62,8 @@ export class OrderController {
     @Query('pageSize') pageSize = 10,
     @Req() req: Request,
   ): Promise<any> {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl =
+      process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
     const { data, total } = await this.orderService.findAll(
       Number(page),
       Number(pageSize),
@@ -83,7 +85,8 @@ export class OrderController {
 
   @Get('find/:id')
   async findOne(@Param('id') id: string, @Req() req: Request): Promise<any> {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl =
+      process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
     const result = await this.orderService.findOne(id, baseUrl);
     return new Successfully<any>('Get successfully.', result);
   }
@@ -94,7 +97,8 @@ export class OrderController {
     @Body() updateOrderStatusDto: UpdateOrderStatusDto,
     @Req() req: Request,
   ): Promise<any> {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl =
+      process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
     const result = await this.orderService.updateStatus(
       id,
       updateOrderStatusDto,
@@ -121,7 +125,8 @@ export class OrderController {
     @Query('page') page = 1,
     @Query('pageSize') pageSize = 10,
   ) {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl =
+      process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
     const filters = {
       orderId,
       customerId,
@@ -156,7 +161,8 @@ export class OrderController {
     @Body() dto: CreateOrderWithCustomerDto,
     @Req() req: Request,
   ): Promise<any> {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl =
+      process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
     const result = await this.orderService.createWithCustomer(dto, baseUrl);
     return new Successfully<any>(
       'Register order and customer successfully.',
