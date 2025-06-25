@@ -46,7 +46,7 @@ export class CustomerService {
     const newCust = this.custRepo.create({
       ...dto,
       id: nextId,
-      birthday: new Date(dto.birthday),
+      birthday: dto.birthday ? new Date(dto.birthday) : null,
       status: UserStatus.ACTIVE,
     });
 

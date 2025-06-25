@@ -6,26 +6,26 @@ export class CustEntity {
   @PrimaryColumn()
   id: string; // ex. CUST0001
 
-  @Column()
-  tel: string;
+  @Column({ nullable: true, default: null })
+  tel: string | null;
 
-  @Column()
-  line: string;
+  @Column({ nullable: true, default: null })
+  line: string | null;
 
-  @Column()
-  facebook: string;
+  @Column({ nullable: true, default: null })
+  facebook: string | null;
 
-  @Column()
-  fullname: string;
+  @Column({ nullable: true, default: null })
+  fullname: string | null;
 
-  @Column()
-  nickname: string;
+  @Column({ nullable: true, default: null })
+  nickname: string | null;
 
-  @Column()
-  address: string;
+  @Column({ nullable: true, default: null })
+  address: string | null;
 
-  @Column({ type: 'date' })
-  birthday: Date;
+  @Column({ type: 'date', nullable: true, default: null })
+  birthday: Date | null;
 
   @CreateDateColumn()
   created_at: Date;

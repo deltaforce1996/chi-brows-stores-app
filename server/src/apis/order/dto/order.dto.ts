@@ -51,6 +51,10 @@ export class CreateOrderDto {
   @IsNumber()
   @IsPositive()
   price: number;
+
+  @IsOptional()
+  @IsString()
+  notes_2?: string;
 }
 
 export class UpdateOrderStatusDto {
@@ -85,4 +89,8 @@ export class CreateOrderWithCustomerDto {
   @IsNumber()
   @IsPositive()
   price: number;
+
+  @IsOptional()
+  @IsString()
+  notes_2?: string;
 }

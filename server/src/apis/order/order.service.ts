@@ -49,6 +49,7 @@ export class OrderService {
         notes: dto.notes,
         date: dto.date,
         price: dto.price,
+        notes_2: dto.notes_2,
       };
 
       const order = await this.create(createOrderDto, baseUrl);
@@ -66,7 +67,7 @@ export class OrderService {
     createOrderDto: CreateOrderDto,
     baseUrl: string,
   ): Promise<OrderEntity> {
-    const { customerId, employeeId, items, notes, price, date } =
+    const { customerId, employeeId, items, notes, price, date, notes_2 } =
       createOrderDto;
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -146,7 +147,7 @@ export class OrderService {
       order.notes = notes;
       order.items = orderItems;
       order.date = date;
-
+      order.notes_2 = notes_2;
       const savedOrder = await queryRunner.manager.save(OrderEntity, order);
 
       await queryRunner.commitTransaction();

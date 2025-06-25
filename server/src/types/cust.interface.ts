@@ -2,13 +2,13 @@ import { UserStatus } from 'src/utils/user-status.enum';
 
 export interface CustBase {
   id: string;
-  tel: string;
-  line: string;
-  facebook: string;
-  fullname: string;
-  nickname: string;
-  address: string;
-  birthday: Date;
+  tel: string | null;
+  line: string | null;
+  facebook: string | null;
+  fullname: string | null;
+  nickname: string | null;
+  address: string | null;
+  birthday: Date | null;
   created_at: Date;
   status: UserStatus;
 }
