@@ -21,12 +21,14 @@
         <div class="form-group">
           <v-text-field
             v-model="password"
+            :type="showPassword ? 'text' : 'password'"
             label="รหัสผ่าน"
-            type="password"
             variant="outlined"
             density="comfortable"
             required
             prepend-inner-icon="mdi-lock"
+            :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+            @click:append-inner="showPassword = !showPassword"
             class="form-input"
             :error="!!error"
           />
@@ -89,6 +91,7 @@ const username = ref("");
 const password = ref("");
 const rememberMe = ref(false);
 const error = ref("");
+const showPassword = ref(false);
 const router = useRouter();
 const userStore = useUserStore();
 

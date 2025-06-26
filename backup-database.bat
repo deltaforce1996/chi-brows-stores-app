@@ -3,8 +3,8 @@ setlocal enabledelayedexpansion
 
 REM Configuration
 set DB_HOST=localhost
-set DB_PORT=3306
-set DB_NAME=chi_brows_stores_dev
+set DB_PORT=3309
+set DB_NAME=chi_brows_stores_production
 set DB_USER=root
 set DB_PASSWORD=root
 set BACKUP_DIR=%~dp0backups
