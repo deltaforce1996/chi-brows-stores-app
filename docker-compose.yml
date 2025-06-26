@@ -7,7 +7,7 @@ services:
       - "3309:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=chi_brows_stores_dev
+      - MYSQL_DATABASE=chi_brows_stores_production
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -52,9 +52,9 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
-      args:
+      # args:
         # - VITE_API_BASE_URL=https://s8nzxkjp-3000.asse.devtunnels.ms   #แก้ไข URL ตามที่ต้องการ
-        - VITE_API_BASE_URL=http://127.0.0.1:3000
+        # - VITE_API_BASE_URL=http://127.0.0.1:3000
     ports:
       - "80:80"
     depends_on:
