@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductEntity } from 'src/db/entities/product.entity';
 import {
@@ -10,11 +10,39 @@ import { ILike, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/product.dto';
 
 @Injectable()
-export class ProductService {
+export class ProductService implements OnModuleInit {
   constructor(
     @InjectRepository(ProductEntity) // <-- ใช้ ProductEntity
     private readonly productRepo: Repository<ProductEntity>, // <-- เปลี่ยนชื่อ repo
   ) {}
+
+  async onModuleInit() {
+    // This method will be called when the module is initialized
+    await this.register({
+      name: 'Product A',
+      price: 100,
+      description: 'Description for Product A',
+      image: 'images/product_a.jpg',
+    }).catch(() => {
+      console.error('Failed to register default product');
+    });
+    await this.register({
+      name: 'Product B',
+      price: 50,
+      description: 'Description for Product B',
+      image: 'images/product_b.png',
+    }).catch(() => {
+      console.error('Failed to register default product');
+    });
+    await this.register({
+      name: 'Product C (No Desc)',
+      price: 500,
+      description: 'description/test',
+      image: 'image/test',
+    }).catch(() => {
+      console.error('Failed to register default product');
+    });
+  }
 
   async register(dto: CreateProductDto): Promise<ProductBase> {
     // ตรวจสอบว่ามีสินค้าชื่อนี้อยู่แล้วหรือไม่

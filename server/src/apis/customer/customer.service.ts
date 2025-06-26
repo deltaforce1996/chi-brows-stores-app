@@ -21,9 +21,9 @@ export class CustomerService {
     // ตรวจสอบข้อมูลซ้ำ เช่น เบอร์โทร, line, หรือ facebook
     const exists = await this.custRepo.findOne({
       where: [
-        { tel: dto.tel },
-        { line: dto.line },
-        { facebook: dto.facebook },
+        // { tel: dto.tel },
+        // { line: dto.line },
+        // { facebook: dto.facebook },
         { fullname: dto.fullname },
       ],
     });

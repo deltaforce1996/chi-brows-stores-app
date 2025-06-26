@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmployeeEntity } from 'src/db/entities/emp.entity';
 import { EmployeeBase } from 'src/types/employee.interface';
@@ -12,11 +12,25 @@ import { Repository } from 'typeorm';
 import { UserStatus } from 'src/utils/user-status.enum';
 
 @Injectable()
-export class EmployeeService {
+export class EmployeeService implements OnModuleInit {
   constructor(
     @InjectRepository(EmployeeEntity)
     private readonly employeeRepo: Repository<EmployeeEntity>,
   ) {}
+
+  async onModuleInit() {
+    // This method will be called when the module is initialized
+    await this.register({
+      username: 'admin',
+      password: 'admin1234',
+      fullname: 'Admin User',
+      email: 'admin@example.com',
+      tel: '0000000000',
+      birthday: new Date().toISOString().split('T')[0],
+    }).catch(() => {
+      console.error('Failed to register default admin user');
+    });
+  }
 
   async register(dto: CreateEmployeeDto): Promise<EmployeeBase> {
     const last = await this.employeeRepo
