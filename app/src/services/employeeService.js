@@ -33,6 +33,12 @@ export async function getEmployeeById(id) {
   return res.data.data
 }
 
+/** @param {string} id @returns {Promise<EmployeeResponse>} */
+export async function getEmployeeMe() {
+  const res = await axios.get(`/employees/me`)
+  return res.data.data
+}
+
 /**
  * @param {string} q
  * @param {number} [page=1]

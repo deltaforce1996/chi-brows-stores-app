@@ -231,6 +231,20 @@
                   />
                 </div>
               </v-col>
+
+              <v-col cols="12" md="6">
+                <div class="input-group">
+                  <label class="input-label">หมายเหตุเพิ่มเติม</label>
+                  <v-text-field
+                    v-model="form.notes_2"
+                    variant="outlined"
+                    density="comfortable"
+                    class="modern-input"
+                    prepend-inner-icon="mdi-comment-text-outline"
+                    hide-details="auto"
+                  />
+                </div>
+              </v-col>
             </v-row>
           </v-card-text>
         </v-card>
@@ -311,6 +325,7 @@ const form = ref({
   price: "",
   medicalCondition: "",
   provider: null,
+  notes_2: "",
   datetime: "",
   image: null,
 });

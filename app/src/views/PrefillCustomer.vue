@@ -257,6 +257,20 @@
                               </div>
 
                               <div class="detail-row-expanded">
+                                <v-icon size="18" color="warning" class="mr-2"
+                                  >mdi-comment-text-outline</v-icon
+                                >
+                                <div>
+                                  <div class="detail-label-expanded">
+                                    หมายเหตุเพิ่มเติม
+                                  </div>
+                                  <div class="detail-value-expanded">
+                                    {{ order.notes_2 || "-" }}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="detail-row-expanded">
                                 <v-icon size="18" color="info" class="mr-2"
                                   >mdi-calendar-clock</v-icon
                                 >
@@ -382,7 +396,7 @@
                     <v-col cols="12" md="6">
                       <v-text-field
                         v-model="formData.condition"
-                        label="โรคประจำตัว / หมายเหตุ"
+                        label="โรคประจำตัว "
                         variant="outlined"
                         prepend-inner-icon="mdi-alert-circle"
                         class="mb-4"
@@ -409,6 +423,18 @@
                         prepend-inner-icon="mdi-calendar-clock"
                         :rules="[rules.required]"
                         class="mb-4"
+                      />
+                    </v-col>
+
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="formData.notes_2"
+                        label="หมายเหตุเพิ่มเติม"
+                        variant="outlined"
+                        prepend-inner-icon="mdi-note-text"
+                        class="mb-4"
+                        textarea
+                        rows="3"
                       />
                     </v-col>
                     <v-col cols="12" md="6">
@@ -512,6 +538,7 @@ const formData = ref({
   serviceType: "",
   condition: "",
   employee: "",
+  notes_2: "",
   price: "",
   datetime: "",
   image: null,
@@ -604,6 +631,7 @@ function cancelForm() {
     serviceType: "",
     condition: "",
     employee: "",
+    notes_2: "",
     price: "",
     datetime: "",
     image: null,
@@ -675,6 +703,7 @@ async function submitForm() {
         },
       ],
       notes: formData.value.condition || "",
+      notes_2: formData.value.notes_2 || "",
       price: Number(formData.value.price),
       date: new Date(rawDate).toISOString(),
     };
