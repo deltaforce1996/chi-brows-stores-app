@@ -30,6 +30,39 @@ export class EmployeeService implements OnModuleInit {
     }).catch(() => {
       console.error('Failed to register default admin user');
     });
+
+    await this.register({
+      username: 'chieing',
+      password: 'chieing999',
+      fullname: 'อาจารย์อิง',
+      email: 'Khonkanok1998@gmail.com',
+      tel: '099-3642424',
+      birthday: '1998-09-03',
+    }).catch(() => {
+      console.error('Failed to register default admin user');
+    });
+
+    await this.register({
+      username: 'meiji',
+      password: 'meiji0109',
+      fullname: 'ช่างทีมงาน ช่างเมย์1',
+      email: 'maymojittima@gmail.com',
+      tel: '096-6360397',
+      birthday: '2000-09-01',
+    }).catch(() => {
+      console.error('Failed to register default admin user');
+    });
+
+    await this.register({
+      username: 'MiMay',
+      password: 'mimay99',
+      fullname: 'ช่างทีมงาน ช่างเมย์2',
+      email: 'maymos264300@gmail.com',
+      tel: '062-0534535',
+      birthday: '2000-06-20',
+    }).catch(() => {
+      console.error('Failed to register default admin user');
+    });
   }
 
   async register(dto: CreateEmployeeDto): Promise<EmployeeBase> {
@@ -91,7 +124,7 @@ export class EmployeeService implements OnModuleInit {
     }
 
     queryBuilder
-      .orderBy('emp.created_at', 'DESC')
+      .orderBy('emp.created_at', 'ASC')
       .skip((page - 1) * pageSize)
       .take(pageSize);
 

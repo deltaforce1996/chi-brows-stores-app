@@ -5,7 +5,14 @@
       <v-col cols="12" md="6" class="d-none d-md-flex auth-left align-center justify-center">
         <div class="branding-container">
           <div class="brand-icon">
-            <v-icon size="80" color="gold">mdi-spa</v-icon>
+            <!-- <v-icon size="80" color="red">mdi-spa</v-icon> -->
+             <!-- <v-img
+  src="/chiphoto.webp"
+  width="150"
+  height="150"
+  alt="Chi Brow Logo"
+  class="mb-4"
+/> -->
           </div>
           <h1 class="brand-title">Chi Brows</h1>
           <p class="brand-subtitle">THE PROFESSIONAL EYEBROWS</p>
@@ -112,7 +119,7 @@ defineProps({
 }
 
 .brand-title {
-  font-size: 3.5rem;
+  font-size: 4.5rem;
   font-weight: 700;
   color: #ffd700;
   margin-bottom: 0.5rem;
@@ -121,7 +128,7 @@ defineProps({
 }
 
 .brand-subtitle {
-  font-size: 1rem;
+  font-size: 1.6rem;
   letter-spacing: 2px;
   color: rgba(255, 215, 0, 0.8);
   margin-bottom: 3rem;
